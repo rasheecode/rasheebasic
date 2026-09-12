@@ -1,0 +1,2893 @@
+!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerPath — Interactive College-to-Career Discovery Platform</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f3ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                            950: '#1e1b4b'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- React & Babel CDNs -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Custom Utility Styles -->
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.4);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.7);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+        }
+        .light .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 dark:bg-slate-950 dark:text-slate-100 light:bg-slate-50 light:text-slate-900 transition-colors duration-300 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, useRef } = React;
+
+        const CAREER_DATABASE = [
+            {
+                id: 'software_developer',
+                title: 'Software Developer',
+                category: 'Technology',
+                icon: 'fa-laptop-code',
+                color: 'from-blue-500 to-indigo-600',
+                badgeBg: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+                shortDesc: 'Design, write, and maintain scalable applications, frontend interfaces, and backend systems.',
+                longDesc: 'Software Developers write clean code, build software solutions, solve complex algorithmic problems, and collaborate with engineering teams to deploy web, mobile, and cloud applications.',
+                codingReq: 'High (Daily Coding)',
+                codingLevel: 4,
+                mathReq: 'Medium',
+                mathLevel: 3,
+                creativity: 'Medium-High',
+                creativityLevel: 4,
+                difficulty: 'Intermediate',
+                difficultyLevel: 3,
+                learningCurve: 'Moderate to Steep',
+                entryFriendliness: 'High (Clear portfolio paths)',
+                remoteOpp: 'Very High (90%+)',
+                careerGrowth: 'Explosive (Junior -> Senior -> Architect)',
+                growthLevel: 5,
+                avgSalary: '$75k - $140k / ₹6-20 LPA',
+                degreesMatched: ['BCA', 'B.Tech', 'BA', 'Other'],
+                suitableInterests: ['Coding & Building', 'Data & Analysis'],
+                suitableProblems: ['Technical problems', 'Logical problems'],
+                suitableCoding: ['Some experience', 'Comfortable', 'Advanced'],
+                suitableValues: ['Salary', 'Career growth', 'Remote work', 'International opportunities'],
+                suitableEnvs: ['Independent', 'Team-based', 'Fast-paced', 'Flexible'],
+                keySkills: ['JavaScript / Python / Java', 'Data Structures & Algorithms', 'Git & GitHub', 'REST APIs & Databases', 'System Design'],
+                tools: ['VS Code', 'Git', 'Docker', 'Postman', 'GitHub'],
+                dailyWork: [
+                    'Writing clean code for new features and software bug fixes',
+                    'Collaborating on GitHub pull requests and code reviews',
+                    'Designing database schemas and integrating backend APIs',
+                    'Participating in daily agile standup meetings'
+                ],
+                whyMatch: [
+                    'You enjoy logic, technology, and building practical digital tools.',
+                    'You are comfortable writing or learning programming languages.',
+                    'Your preferred work environment values remote flexibility and continuous growth.'
+                ],
+                growthGaps: [
+                    'Data Structures & Algorithms problem solving',
+                    'Version Control (Git) and collaborative coding workflows',
+                    'Building end-to-end fullstack portfolio projects'
+                ],
+                realityMetrics: {
+                    dailyCoding: 'High',
+                    teamwork: 'High',
+                    problemSolving: 'Very High',
+                    learningNeed: 'High',
+                    creativity: 'Medium',
+                    mathNeed: 'Medium'
+                }
+            },
+            {
+                id: 'data_analyst',
+                title: 'Data Analyst',
+                category: 'Data & AI',
+                icon: 'fa-chart-pie',
+                color: 'from-emerald-500 to-teal-600',
+                badgeBg: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+                shortDesc: 'Extract patterns from raw business data to help companies make strategic data-driven decisions.',
+                longDesc: 'Data Analysts process data using SQL, Python/R, and visualization tools like PowerBI/Tableau to uncover market trends, customer behaviors, and key performance indicators.',
+                codingReq: 'Medium (SQL & Python scripts)',
+                codingLevel: 3,
+                mathReq: 'High (Statistics & Probability)',
+                mathLevel: 4,
+                creativity: 'Medium (Data Storytelling)',
+                creativityLevel: 3,
+                difficulty: 'Moderate',
+                difficultyLevel: 3,
+                learningCurve: 'Moderate',
+                entryFriendliness: 'Very High (High entry-level demand)',
+                remoteOpp: 'High (75%+)',
+                careerGrowth: 'Strong (Analyst -> Analytics Engineer -> Lead)',
+                growthLevel: 4,
+                avgSalary: '$65k - $115k / ₹5-16 LPA',
+                degreesMatched: ['BCA', 'B.Tech', 'BCom', 'BBA', 'BA', 'Other'],
+                suitableInterests: ['Data & Analysis', 'Business & Management'],
+                suitableProblems: ['Logical problems', 'Business problems'],
+                suitableCoding: ['Beginner', 'Some experience', 'Comfortable'],
+                suitableValues: ['Job stability', 'Salary', 'Career growth', 'Work-life balance'],
+                suitableEnvs: ['Structured', 'Independent', 'Team-based'],
+                keySkills: ['Advanced SQL', 'Python (Pandas, NumPy)', 'PowerBI / Tableau', 'Excel & Statistics', 'Business Intelligence'],
+                tools: ['SQL Server', 'Jupyter Notebooks', 'Tableau', 'Excel', 'BigQuery'],
+                dailyWork: [
+                    'Writing SQL queries to extract data subsets',
+                    'Building visual dashboards for executive decision making',
+                    'Cleansing missing or corrupted datasets',
+                    'Presenting statistical findings to product teams'
+                ],
+                whyMatch: [
+                    'You enjoy analyzing numbers and spotting underlying patterns.',
+                    'You like solving structured business problems with facts.',
+                    'You prefer data storytelling over heavy software architecture.'
+                ],
+                growthGaps: [
+                    'Advanced SQL queries and database join operations',
+                    'Data visualization tools like Tableau or Power BI',
+                    'Basic Python libraries (Pandas & Seaborn)'
+                ],
+                realityMetrics: {
+                    dailyCoding: 'Medium',
+                    teamwork: 'Medium-High',
+                    problemSolving: 'High',
+                    learningNeed: 'High',
+                    creativity: 'Medium',
+                    mathNeed: 'High'
+                }
+            },
+            {
+                id: 'ui_ux_designer',
+                title: 'UI/UX Designer',
+                category: 'Design',
+                icon: 'fa-pen-ruler',
+                color: 'from-purple-500 to-pink-600',
+                badgeBg: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+                shortDesc: 'Create intuitive, visually appealing digital interfaces and user experiences for websites & mobile apps.',
+                longDesc: 'UI/UX Designers conduct user research, draw wireframes, build interactive prototypes, and design user-centric interfaces that make digital products effortless to use.',
+                codingReq: 'Low to None (HTML/CSS helpful)',
+                codingLevel: 1,
+                mathReq: 'Low',
+                mathLevel: 1,
+                creativity: 'Very High (Aesthetics & Empathy)',
+                creativityLevel: 5,
+                difficulty: 'Beginner-Friendly',
+                difficultyLevel: 2,
+                learningCurve: 'Gentle',
+                entryFriendliness: 'High (Portfolio matters most)',
+                remoteOpp: 'Very High (85%+)',
+                careerGrowth: 'Steady (Designer -> Product Designer -> Director)',
+                growthLevel: 4,
+                avgSalary: '$60k - $120k / ₹5-18 LPA',
+                degreesMatched: ['BA', 'BBA', 'BCA', 'B.Tech', 'Other'],
+                suitableInterests: ['Designing & Creativity', 'Communication & People'],
+                suitableProblems: ['Creative problems', 'People-related problems'],
+                suitableCoding: ['Beginner', 'Some experience'],
+                suitableValues: ['Creativity', 'Work-life balance', 'Remote work', 'Job stability'],
+                suitableEnvs: ['Flexible', 'Independent', 'Fast-paced'],
+                keySkills: ['Figma / Adobe XD', 'Wireframing & Prototyping', 'User Research', 'Design Systems', 'Typography & Visual Hierarchy'],
+                tools: ['Figma', 'Miro', 'Framer', 'Illustrator', 'Notion'],
+                dailyWork: [
+                    'Conducting interviews to discover user pain points',
+                    'Sketching low-fidelity wireframes and user screen flows',
+                    'Designing pixel-perfect UI components in Figma',
+                    'Testing interactive prototypes with target users'
+                ],
+                whyMatch: [
+                    'You have an eye for visual aesthetics, layout, and human behavior.',
+                    'You want to work in tech without writing heavy code daily.',
+                    'You enjoy creative problem solving and intuitive app navigation.'
+                ],
+                growthGaps: [
+                    'Mastering Figma components, auto-layout, and design tokens',
+                    'User journey mapping and usability testing methodologies',
+                    'Creating an impressive Behance / personal portfolio website'
+                ],
+                realityMetrics: {
+                    dailyCoding: 'Low',
+                    teamwork: 'High',
+                    problemSolving: 'High',
+                    learningNeed: 'Medium',
+                    creativity: 'Very High',
+                    mathNeed: 'Low'
+                }
+            },
+            {
+                id: 'qa_sdet',
+                title: 'QA Engineer / SDET',
+                category: 'Technology',
+                icon: 'fa-bug-slash',
+                color: 'from-amber-500 to-yellow-600',
+                badgeBg: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+                shortDesc: 'Ensure software quality, test application functionality, write automation scripts, and catch critical bugs.',
+                longDesc: 'Quality Assurance Engineers and Software Development Engineers in Test (SDET) design automated test suites, perform exploratory manual testing, and ensure products perform under high load.',
+                codingReq: 'Medium (Automation scripts)',
+                codingLevel: 3,
+                mathReq: 'Low-Medium',
+                mathLevel: 2,
+                creativity: 'Medium (Finding edge cases)',
+                creativityLevel: 3,
+                difficulty: 'Beginner-Friendly',
+                difficultyLevel: 2,
+                learningCurve: 'Gentle to Moderate',
+                entryFriendliness: 'Very High (Great gateway into tech)',
+                remoteOpp: 'High (75%+)',
+                careerGrowth: 'Strong (QA -> SDET -> Test Architect / Lead)',
+                growthLevel: 4,
+                avgSalary: '$55k - $110k / ₹4.5-15 LPA',
+                degreesMatched: ['BCA', 'B.Tech', 'BBA', 'BCom', 'Other'],
+                suitableInterests: ['Coding & Building', 'Data & Analysis'],
+                suitableProblems: ['Technical problems', 'Logical problems'],
+                suitableCoding: ['Beginner', 'Some experience', 'Comfortable'],
+                suitableValues: ['Job stability', 'Work-life balance', 'Career growth'],
+                suitableEnvs: ['Structured', 'Team-based', 'Independent'],
+                keySkills: ['Selenium / Cypress', 'API Testing (Postman)', 'Test Case Design', 'Java / Python for Automation', 'Bug Tracking (Jira)'],
+                tools: ['Postman', 'Cypress', 'Selenium', 'Jira', 'Jenkins'],
+                dailyWork: [
+                    'Writing automated test scripts in JavaScript/Python',
+                    'Testing web & mobile app features against specification docs',
+                    'Documenting reproducible bug reports in Jira',
+                    'Executing regression tests before software release'
+                ],
+                whyMatch: [
+                    'You are detail-oriented and enjoy finding edge-case flaws in systems.',
+                    'You want a structured tech career with a balanced learning curve.',
+                    'You like combining technical automation with quality assurance.'
+                ],
+                growthGaps: [
+                    'Automation test frameworks like Cypress or Selenium',
+                    'API testing using Postman and REST protocols',
+                    'CI/CD pipeline automation setup'
+                ],
+                realityMetrics: {
+                    dailyCoding: 'Medium',
+                    teamwork: 'High',
+                    problemSolving: 'High',
+                    learningNeed: 'Medium',
+                    creativity: 'Medium',
+                    mathNeed: 'Low'
+                }
+            },
+            {
+                id: 'cybersecurity_analyst',
+                title: 'Cybersecurity Analyst',
+                category: 'Technology',
+                icon: 'fa-shield-halved',
+                color: 'from-cyan-500 to-blue-700',
+                badgeBg: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
+                shortDesc: 'Protect networks, servers, and sensitive digital data from cyber threats, malware, and security breaches.',
+                longDesc: 'Cybersecurity Analysts monitor network security logs, perform vulnerability scans, implement firewall protocols, and respond to cyber incidents in real-time.',
+                codingReq: 'Medium (Scripting & Command Line)',
+                codingLevel: 3,
+                mathReq: 'Medium (Cryptography basics)',
+                mathLevel: 3,
+                creativity: 'Medium (Outsmarting threats)',
+                creativityLevel: 3,
+                difficulty: 'Intermediate to Advanced',
+                difficultyLevel: 4,
+                learningCurve: 'Steep',
+                entryFriendliness: 'Moderate (Certifications accelerate hiring)',
+                remoteOpp: 'Moderate-High (65%+)',
+                careerGrowth: 'Very High (Analyst -> Pentester -> CISO)',
+                growthLevel: 5,
+                avgSalary: '$70k - $130k / ₹6-18 LPA',
+                degreesMatched: ['B.Tech', 'BCA', 'Other'],
+                suitableInterests: ['Cybersecurity', 'Coding & Building'],
+                suitableProblems: ['Technical problems', 'Logical problems'],
+                suitableCoding: ['Some experience', 'Comfortable', 'Advanced'],
+                suitableValues: ['Job stability', 'Salary', 'Career growth'],
+                suitableEnvs: ['Structured', 'Fast-paced', 'Independent'],
+                keySkills: ['Network Security & Protocols', 'Linux CLI Administration', 'Ethical Hacking basics', 'Incident Response', 'SIEM & Log Analysis'],
+                tools: ['Wireshark', 'Metasploit', 'Nmap', 'Burp Suite', 'Splunk'],
+                dailyWork: [
+                    'Monitoring security dashboards for anomalous network traffic',
+                    'Scanning infrastructure for software vulnerabilities',
+                    'Conducting penetration tests on web applications',
+                    'Drafting incident response and compliance reports'
+                ],
+                whyMatch: [
+                    'You are curious about computer networking and digital security.',
+                    'You enjoy investigative, detail-oriented technical defense.',
+                    'You value high job stability in a critical industry.'
+                ],
+                growthGaps: [
+                    'Linux CLI command mastery and bash scripting',
+                    'Network packet inspection using Wireshark',
+                    'Security certifications (CompTIA Security+, CEH)'
+                ],
+                realityMetrics: {
+                    dailyCoding: 'Medium',
+                    teamwork: 'Medium',
+                    problemSolving: 'Very High',
+                    learningNeed: 'Very High',
+                    creativity: 'Medium',
+                    mathNeed: 'Medium'
+                }
+            },
+            {
+                id: 'ai_ml_engineer',
+                title: 'AI / ML Engineer',
+                category: 'Data & AI',
+                icon: 'fa-brain',
+                color: 'from-violet-500 to-purple-700',
+                badgeBg: 'bg-violet-500/20 text-violet-400 border-violet-500/30',
+                shortDesc: 'Build intelligent algorithms, neural networks, and generative AI models that learn from data.',
+                longDesc: 'AI/ML Engineers design statistical models, train deep neural networks, fine-tune Large Language Models (LLMs), and deploy machine learning pipelines into production systems.',
+                codingReq: 'Very High (Python, PyTorch)',
+                codingLevel: 5,
+                mathReq: 'Very High (Linear Algebra, Calculus, Stats)',
+                mathLevel: 5,
+                creativity: 'High (Algorithm Innovation)',
+                creativityLevel: 4,
+                difficulty: 'Advanced',
+                difficultyLevel: 5,
+                learningCurve: 'Steep',
+                entryFriendliness: 'Moderate (Strong math foundation needed)',
+                remoteOpp: 'High (80%+)',
+                careerGrowth: 'Explosive (ML Engineer -> AI Research Scientist)',
+                growthLevel: 5,
+                avgSalary: '$90k - $180k / ₹8-30 LPA',
+                degreesMatched: ['B.Tech', 'BCA', 'Other'],
+                suitableInterests: ['Artificial Intelligence', 'Coding & Building', 'Data & Analysis'],
+                suitableProblems: ['Technical problems', 'Logical problems'],
+                suitableCoding: ['Comfortable', 'Advanced'],
+                suitableValues: ['Salary', 'Career growth', 'International opportunities'],
+                suitableEnvs: ['Independent', 'Fast-paced', 'Flexible'],
+                keySkills: ['Python & PyTorch/TensorFlow', 'Linear Algebra & Calculus', 'Prompt Engineering & LLMs', 'Data Engineering', 'Model Deployment (MLOps)'],
+                tools: ['PyTorch', 'Jupyter', 'Hugging Face', 'Docker', 'AWS SageMaker'],
+                dailyWork: [
+                    'Cleansing datasets and engineering features for model training',
+                    'Training deep neural network architectures',
+                    'Fine-tuning open-source LLMs and prompt pipelines',
+                    'Optimizing inference speed for cloud deployment'
+                ],
+                whyMatch: [
+                    'You are passionate about cutting-edge artificial intelligence.',
+                    'You love mathematics, algorithms, and deep technical challenges.',
+                    'You want to lead the next wave of tech innovation.'
+                ],
+                growthGaps: [
+                    'Linear Algebra, Matrix Calculus, and Probability Theory',
+                    'Hands-on PyTorch / TensorFlow model training',
+                    'Deploying ML models using FastAPI and Docker'
+                ],
+                realityMetrics: {
+                    dailyCoding: 'Very High',
+                    teamwork: 'Medium',
+                    problemSolving: 'Very High',
+                    learningNeed: 'Very High',
+                    creativity: 'High',
+                    mathNeed: 'Very High'
+                }
+            },
+            {
+                id: 'product_manager',
+                title: 'Product Manager (APM)',
+                category: 'Business',
+                icon: 'fa-briefcase',
+                color: 'from-orange-500 to-amber-600',
+                badgeBg: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+                shortDesc: 'Bridge tech, design, and business strategy to guide digital products from idea to market launch.',
+                longDesc: 'Associate Product Managers prioritize feature backlogs, collaborate with engineers and designers, analyze user metrics, and align business strategy with user experience.',
+                codingReq: 'Low (Tech literacy required)',
+                codingLevel: 2,
+                mathReq: 'Medium (Metrics & KPIs)',
+                mathLevel: 3,
+                creativity: 'High (Strategic Problem Solving)',
+                creativityLevel: 4,
+                difficulty: 'Intermediate',
+                difficultyLevel: 3,
+                learningCurve: 'Moderate',
+                entryFriendliness: 'Moderate (Competitive APM programs)',
+                remoteOpp: 'High (70%+)',
+                careerGrowth: 'Very High (APM -> PM -> VP of Product)',
+                growthLevel: 5,
+                avgSalary: '$80k - $150k / ₹8-24 LPA',
+                degreesMatched: ['BBA', 'B.Tech', 'BCom', 'BCA', 'BA', 'Other'],
+                suitableInterests: ['Business & Management', 'Communication & People', 'Coding & Building'],
+                suitableProblems: ['Business problems', 'People-related problems'],
+                suitableCoding: ['Beginner', 'Some experience', 'Comfortable'],
+                suitableValues: ['Salary', 'Career growth', 'International opportunities'],
+                suitableEnvs: ['Fast-paced', 'Team-based', 'Structured'],
+                keySkills: ['Product Roadmap Design', 'Agile / Scrum Methodologies', 'User Data Analytics', 'PRD Document Writing', 'Stakeholder Management'],
+                tools: ['Jira', 'Mixpanel', 'Notion', 'Figma', 'Slack'],
+                dailyWork: [
+                    'Prioritizing sprint tasks with engineering leads',
+                    'Analyzing user metric funnels to identify retention drops',
+                    'Writing Product Requirement Documents (PRDs)',
+                    'Presenting roadmap vision to leadership stakeholders'
+                ],
+                whyMatch: [
+                    'You possess strong communication and strategic business thinking.',
+                    'You enjoy leadership, coordination, and the big-picture vision.',
+                    'You like connecting customer needs with technical solutions.'
+                ],
+                growthGaps: [
+                    'Writing structured Product Requirement Documents (PRDs)',
+                    'Product analytics metrics (CAC, LTV, Churn, DAU/MAU)',
+                    'Agile frameworks and user interviewing techniques'
+                ],
+                realityMetrics: {
+                    dailyCoding: 'Low',
+                    teamwork: 'Very High',
+                    problemSolving: 'High',
+                    learningNeed: 'High',
+                    creativity: 'High',
+                    mathNeed: 'Medium'
+                }
+            },
+            {
+                id: 'digital_marketer',
+                title: 'Digital Marketing & Growth Lead',
+                category: 'Business',
+                icon: 'fa-bullhorn',
+                color: 'from-rose-500 to-red-600',
+                badgeBg: 'bg-rose-500/20 text-rose-400 border-rose-500/30',
+                shortDesc: 'Drive brand growth, acquire online customers, and execute data-driven social & advertising campaigns.',
+                longDesc: 'Digital Marketers create acquisition campaigns across Meta Ads, Google Ads, SEO, Content Marketing, and Email funnels to scale online business revenue.',
+                codingReq: 'Low (HTML/CSS & tracking codes)',
+                codingLevel: 1,
+                mathReq: 'Medium (Budget & ROAS Analytics)',
+                mathLevel: 2,
+                creativity: 'Very High (Copywriting & Creatives)',
+                creativityLevel: 5,
+                difficulty: 'Beginner-Friendly',
+                difficultyLevel: 2,
+                learningCurve: 'Gentle to Moderate',
+                entryFriendliness: 'Very High (Fast entry via agencies)',
+                remoteOpp: 'High (80%+)',
+                careerGrowth: 'Strong (Marketer -> Growth Lead -> CMO)',
+                growthLevel: 4,
+                avgSalary: '$55k - $105k / ₹4-15 LPA',
+                degreesMatched: ['BBA', 'BCom', 'BA', 'Other'],
+                suitableInterests: ['Communication & People', 'Designing & Creativity', 'Business & Management'],
+                suitableProblems: ['Creative problems', 'Business problems', 'People-related problems'],
+                suitableCoding: ['Beginner'],
+                suitableValues: ['Creativity', 'Remote work', 'Career growth', 'Work-life balance'],
+                suitableEnvs: ['Fast-paced', 'Flexible', 'Team-based'],
+                keySkills: ['Search Engine Optimization (SEO)', 'Meta & Google Ads Manager', 'Copywriting & Content Strategy', 'Google Analytics 4', 'Conversion Rate Optimization (CRO)'],
+                tools: ['Google Ads', 'Meta Business Suite', 'Semrush', 'Canva', 'Google Analytics'],
+                dailyWork: [
+                    'Writing persuasive ad copy for Meta & Google campaigns',
+                    'Optimizing search engine rankings for target keywords',
+                    'Analyzing campaign Click-Through Rates (CTR) and ROAS',
+                    'Designing graphics and multi-channel content calendars'
+                ],
+                whyMatch: [
+                    'You enjoy psychology, persuasive writing, and social media trends.',
+                    'You like combining creative content with measurable analytical data.',
+                    'You want a career with fast entry and flexible remote potential.'
+                ],
+                growthGaps: [
+                    'Performance marketing analytics and ROAS calculations',
+                    'SEO keyword research tools like Ahrefs or Semrush',
+                    'High-converting ad copywriting and graphic creation'
+                ],
+                realityMetrics: {
+                    dailyCoding: 'Low',
+                    teamwork: 'High',
+                    problemSolving: 'Medium',
+                    learningNeed: 'High',
+                    creativity: 'Very High',
+                    mathNeed: 'Low-Medium'
+                }
+            }
+        ];
+
+        const ROADMAP_DATA = {
+            software_developer: [
+                { stage: 1, title: 'Web Fundamentals', desc: 'Master HTML5, CSS3, Flexbox/Grid, and responsive layout principles.' },
+                { stage: 2, title: 'JavaScript Core', desc: 'ES6+ features, DOM manipulation, async/await, and API fetch calls.' },
+                { stage: 3, title: 'Frontend Framework (React)', desc: 'Components, state, hooks, Tailwind CSS, and single-page apps.' },
+                { stage: 4, title: 'Backend & Databases', desc: 'Node.js, Express, REST APIs, and MongoDB / PostgreSQL basics.' },
+                { stage: 5, title: 'Git & Version Control', desc: 'Git commands, GitHub repositories, branching, and pull requests.' },
+                { stage: 6, title: 'DSA & Problem Solving', desc: 'Arrays, Strings, HashMaps, Trees, and 50+ LeetCode problems.' },
+                { stage: 7, title: 'Build 3 Fullstack Projects', desc: 'Create 1 e-commerce, 1 dashboard, and 1 fullstack capstone project.' },
+                { stage: 8, title: 'Internship Applications', desc: 'Apply to 30+ internships via LinkedIn, Wellfound, and campus placement.' },
+                { stage: 9, title: 'Resume & Interview Prep', desc: 'Tailor ATS resume, prepare mock technical & behavioral interviews.' },
+                { stage: 10, title: 'Land Entry-Level Developer Role', desc: 'Negotiate offers and join your first tech engineering team!' }
+            ],
+            data_analyst: [
+                { stage: 1, title: 'Excel & Spreadsheet Mastery', desc: 'Advanced formulas, VLOOKUP, XLOOKUP, Pivot Tables, and charts.' },
+                { stage: 2, title: 'SQL Fundamentals', desc: 'SELECT, WHERE, JOINs, GROUP BY, aggregations, and subqueries.' },
+                { stage: 3, title: 'Data Visualization', desc: 'PowerBI or Tableau dashboards, chart selection, and KPI metrics.' },
+                { stage: 4, title: 'Python for Analysis', desc: 'Python basics, Pandas dataframes, NumPy arrays, and Seaborn graphs.' },
+                { stage: 5, title: 'Statistics & Probability', desc: 'Mean/median, standard deviation, hypothesis testing, and correlation.' },
+                { stage: 6, title: 'Data Cleansing & ETL', desc: 'Handling missing values, duplicate removal, and data transformation.' },
+                { stage: 7, title: 'Build 2 Data Dashboards', desc: 'Create a sales dashboard and a customer churn analytics report.' },
+                { stage: 8, title: 'Internship Applications', desc: 'Apply for entry-level data analyst and BI intern positions.' },
+                { stage: 9, title: 'Resume & Case Study Prep', desc: 'Prepare case study walk-throughs and SQL technical interviews.' },
+                { stage: 10, title: 'Land Data Analyst Role', desc: 'Start turning business raw data into strategic growth insights.' }
+            ],
+            ui_ux_designer: [
+                { stage: 1, title: 'Design Principles', desc: 'Color theory, typography, visual hierarchy, spacing, and grid systems.' },
+                { stage: 2, title: 'Figma Mastery', desc: 'Frames, components, auto-layout, variants, and interactive prototyping.' },
+                { stage: 3, title: 'UX Research Fundamentals', desc: 'User personas, journey mapping, wireframing, and problem definition.' },
+                { stage: 4, title: 'Design Systems', desc: 'UI component libraries, design tokens, and style guide creation.' },
+                { stage: 5, title: 'Usability Testing', desc: 'Conducting user testing, collecting feedback, and iterating designs.' },
+                { stage: 6, title: 'HTML/CSS Basics', desc: 'Understand design handoff and basic web layout structure.' },
+                { stage: 7, title: 'Build 2 Case Studies', desc: 'Design 1 mobile app redesign and 1 SaaS dashboard prototype.' },
+                { stage: 8, title: 'Portfolio Website', desc: 'Publish portfolio on Framer / Behance with step-by-step case studies.' },
+                { stage: 9, title: 'Design Interview Prep', desc: 'Practice whiteboarding challenges and portfolio walkthroughs.' },
+                { stage: 10, title: 'Land UI/UX Designer Role', desc: 'Join a digital product design team crafting user experiences.' }
+            ],
+            qa_sdet: [
+                { stage: 1, title: 'Software Testing Basics', desc: 'SDLC, STLC, manual test case writing, and defect life cycles.' },
+                { stage: 2, title: 'API Testing (Postman)', desc: 'REST endpoints, HTTP methods, status codes, and assertion tests.' },
+                { stage: 3, title: 'JavaScript / Python Basics', desc: 'Variables, loops, functions, and OOP concepts for test scripts.' },
+                { stage: 4, title: 'Test Automation (Cypress / Selenium)', desc: 'Writing automated browser tests and locator strategies.' },
+                { stage: 5, title: 'Git & Bug Tracking', desc: 'Jira issue reporting and version control test script repos.' },
+                { stage: 6, title: 'CI/CD & Jenkins', desc: 'Integrating automated test suites with build pipelines.' },
+                { stage: 7, title: 'Build Automation Suite', desc: 'Automate end-to-end testing for a sample e-commerce website.' },
+                { stage: 8, title: 'Internship Applications', desc: 'Apply for QA Automation & SDET internship roles.' },
+                { stage: 9, title: 'Resume & Interview Prep', desc: 'Prepare SQL queries, bug reporting scenarios, and test script coding.' },
+                { stage: 10, title: 'Land QA / SDET Role', desc: 'Ensure software excellence across web and mobile platforms.' }
+            ],
+            cybersecurity_analyst: [
+                { stage: 1, title: 'Networking Fundamentals', desc: 'TCP/IP, OSI model, DNS, DHCP, firewalls, and subnetting.' },
+                { stage: 2, title: 'Linux & Command Line', desc: 'Linux CLI commands, permissions, bash scripting, and administration.' },
+                { stage: 3, title: 'Security Principles', desc: 'CIA triad, encryption, authentication, and vulnerability scans.' },
+                { stage: 4, title: 'Wireshark & Packet Analysis', desc: 'Inspecting network traffic, packet headers, and anomaly detection.' },
+                { stage: 5, title: 'Ethical Hacking Basics', desc: 'OWASP Top 10, Nmap scanning, Metasploit, and basic pentesting.' },
+                { stage: 6, title: 'SIEM & Log Monitoring', desc: 'Analyzing security logs in Splunk or Elastic Security.' },
+                { stage: 7, title: 'Build Security Lab', desc: 'Set up VirtualBox lab with Kali Linux and vulnerable targets.' },
+                { stage: 8, title: 'Security Certification', desc: 'Prepare for CompTIA Security+ or Certified Ethical Hacker.' },
+                { stage: 9, title: 'Resume & SOC Practice', desc: 'Practice incident handling scenarios and technical security questions.' },
+                { stage: 10, title: 'Land Cybersecurity Analyst Role', desc: 'Protect corporate infrastructure against digital threats.' }
+            ],
+            ai_ml_engineer: [
+                { stage: 1, title: 'Python & Data Math', desc: 'Python programming, Linear Algebra, Matrix Multiplication, Calculus.' },
+                { stage: 2, title: 'Data Manipulation', desc: 'Pandas dataframes, NumPy vectorization, and data visualization.' },
+                { stage: 3, title: 'Classical Machine Learning', desc: 'Regression, Classification, Decision Trees, and Scikit-Learn.' },
+                { stage: 4, title: 'Deep Learning Basics', desc: 'Neural networks, activation functions, backpropagation, and PyTorch.' },
+                { stage: 5, title: 'Computer Vision / NLP', desc: 'CNNs, Transformers, Tokenization, and Hugging Face pipelines.' },
+                { stage: 6, title: 'Generative AI & LLMs', desc: 'Prompt engineering, RAG architecture, and fine-tuning models.' },
+                { stage: 7, title: 'Build 2 AI Projects', desc: 'Build an AI document QA bot and an image classification model.' },
+                { stage: 8, title: 'MLOps & Model Deployment', desc: 'Serve models via FastAPI, Docker containers, and AWS SageMaker.' },
+                { stage: 9, title: 'Resume & Math Interview Prep', desc: 'Practice ML algorithms, system design for ML, and coding.' },
+                { stage: 10, title: 'Land AI/ML Engineer Role', desc: 'Engineers cutting-edge machine learning production systems.' }
+            ],
+            product_manager: [
+                { stage: 1, title: 'Product Fundamentals', desc: 'Product lifecycle, customer research, user pain points, and MVP concept.' },
+                { stage: 2, title: 'Agile & Scrum Methodologies', desc: 'User stories, sprint planning, backlogs, and Jira workflows.' },
+                { stage: 3, title: 'Product Analytics', desc: 'Metrics (CAC, LTV, Retention, Churn), Mixpanel, and Google Analytics.' },
+                { stage: 4, title: 'Tech Literacy for PMs', desc: 'How APIs, client-server architecture, and databases work.' },
+                { stage: 5, title: 'Wireframing & UX', desc: 'Figma mockups, user journey maps, and visual communication.' },
+                { stage: 6, title: 'PRD Writing', desc: 'Draft comprehensive Product Requirement Documents.' },
+                { stage: 7, title: 'Product Teardown Project', desc: 'Create a product teardown and improvement proposal for a top app.' },
+                { stage: 8, title: 'Apply for APM Internships', desc: 'Target Associate Product Manager programs and tech startups.' },
+                { stage: 9, title: 'Product Interview Prep', desc: 'Practice product design, execution, and strategy interview cases.' },
+                { stage: 10, title: 'Land Product Manager Role', desc: 'Lead product strategy and drive impactful user features.' }
+            ],
+            digital_marketer: [
+                { stage: 1, title: 'Marketing Fundamentals', desc: 'Funnel stages (Awareness, Consideration, Conversion) and copy.' },
+                { stage: 2, title: 'Search Engine Optimization', desc: 'Keyword research, on-page SEO, technical SEO, and Semrush.' },
+                { stage: 3, title: 'Social Media & Meta Ads', desc: 'Meta Ads Manager, audience targeting, ad creatives, and budgeting.' },
+                { stage: 4, title: 'Google Ads & PPC', desc: 'Search ads, quality score, bidding strategies, and conversion tracking.' },
+                { stage: 5, title: 'Content & Email Marketing', desc: 'Copywriting, blog content, and automated Mailchimp email funnels.' },
+                { stage: 6, title: 'Google Analytics 4', desc: 'GA4 reports, event tracking, and attribution modeling.' },
+                { stage: 7, title: 'Execute Growth Campaign', desc: 'Run a live low-budget ad campaign or build an SEO blog.' },
+                { stage: 8, title: 'Digital Portfolio', desc: 'Build portfolio showcasing ROAS metrics, ad creatives, and case studies.' },
+                { stage: 9, title: 'Interview & Agency Prep', desc: 'Prepare campaign strategy proposals and marketing analytics.' },
+                { stage: 10, title: 'Land Digital Marketer Role', desc: 'Scale online brand reach and acquire paying customers.' }
+            ]
+        };
+
+        const INTERNSHIP_DATABASE = [
+            {
+                id: 'int_1',
+                title: 'Frontend Developer Intern',
+                company: 'TechFlow Solutions',
+                logo: 'fa-code',
+                color: 'bg-indigo-600',
+                roleCategory: 'software_developer',
+                degreeReq: ['BCA', 'B.Tech'],
+                location: 'Remote',
+                type: 'Paid',
+                stipend: '₹15,000 - ₹25,000 / mo',
+                duration: '3 - 6 Months',
+                skills: ['React', 'JavaScript', 'Tailwind CSS', 'Git'],
+                desc: 'Help build responsive React components, optimize page performance, and integrate REST API endpoints.'
+            },
+            {
+                id: 'int_2',
+                title: 'Data Analytics Intern',
+                company: 'InsightData Labs',
+                logo: 'fa-chart-simple',
+                color: 'bg-emerald-600',
+                roleCategory: 'data_analyst',
+                degreeReq: ['BCA', 'B.Tech', 'BCom', 'BBA'],
+                location: 'Bengaluru / Hybrid',
+                type: 'Paid',
+                stipend: '₹18,000 - ₹28,000 / mo',
+                duration: '6 Months',
+                skills: ['SQL', 'Excel', 'PowerBI', 'Python'],
+                desc: 'Analyze business datasets, build interactive executive dashboards, and clean sales report metrics.'
+            },
+            {
+                id: 'int_3',
+                title: 'Junior UI/UX Design Intern',
+                company: 'Canvas Design Studio',
+                logo: 'fa-palette',
+                color: 'bg-purple-600',
+                roleCategory: 'ui_ux_designer',
+                degreeReq: ['BA', 'BBA', 'BCA', 'B.Tech'],
+                location: 'Remote',
+                type: 'Paid',
+                stipend: '₹12,000 - ₹20,000 / mo',
+                duration: '3 Months',
+                skills: ['Figma', 'Wireframing', 'Prototyping', 'User Research'],
+                desc: 'Assist senior designers with Figma UI component libraries, wireframing new app screens, and user testing.'
+            },
+            {
+                id: 'int_4',
+                title: 'QA Automation Trainee',
+                company: 'Apex Quality Systems',
+                logo: 'fa-bug',
+                color: 'bg-amber-600',
+                roleCategory: 'qa_sdet',
+                degreeReq: ['BCA', 'B.Tech', 'BCom'],
+                location: 'Noida / On-site',
+                type: 'Paid',
+                stipend: '₹14,000 - ₹22,000 / mo',
+                duration: '6 Months',
+                skills: ['Postman', 'JavaScript', 'Selenium', 'Jira'],
+                desc: 'Write manual test scripts, automate API testing using Postman, and track software bugs in Jira.'
+            },
+            {
+                id: 'int_5',
+                title: 'Associate Product Management Intern',
+                company: 'GrowthScale Technologies',
+                logo: 'fa-cubes',
+                color: 'bg-orange-600',
+                roleCategory: 'product_manager',
+                degreeReq: ['BBA', 'B.Tech', 'BCom', 'BCA'],
+                location: 'Mumbai / Hybrid',
+                type: 'Paid',
+                stipend: '₹20,000 - ₹30,000 / mo',
+                duration: '3 Months',
+                skills: ['Jira', 'Product Research', 'PRD Documentation', 'Figma'],
+                desc: 'Coordinate sprint backlogs, draft feature PRDs, and conduct user feedback interviews with product leads.'
+            },
+            {
+                id: 'int_6',
+                title: 'Cybersecurity Analyst Trainee',
+                company: 'ShieldSec Operations',
+                logo: 'fa-lock',
+                color: 'bg-cyan-600',
+                roleCategory: 'cybersecurity_analyst',
+                degreeReq: ['B.Tech', 'BCA'],
+                location: 'Remote',
+                type: 'Paid',
+                stipend: '₹16,000 - ₹24,000 / mo',
+                duration: '6 Months',
+                skills: ['Linux', 'Wireshark', 'Network Security', 'Nmap'],
+                desc: 'Monitor network security logs, perform vulnerability scans, and assist with SOC incident defense.'
+            }
+        ];
+
+        const RESOURCE_DATABASE = [
+            { title: 'Fullstack Web Development Roadmap', category: 'software_developer', type: 'Documentation', provider: 'MDN & FreeCodeCamp', link: '#', icon: 'fa-book-open' },
+            { title: 'Data Analysis with Python & Pandas', category: 'data_analyst', type: 'Free Course', provider: 'Kaggle Learn', link: '#', icon: 'fa-graduation-cap' },
+            { title: 'Figma UI/UX Masterclass for Beginners', category: 'ui_ux_designer', type: 'YouTube', provider: 'DesignCourse Channel', link: '#', icon: 'fa-youtube' },
+            { title: 'API Testing with Postman Complete Guide', category: 'qa_sdet', type: 'Practice', provider: 'Postman Academy', link: '#', icon: 'fa-terminal' },
+            { title: 'Cybersecurity Fundamentals & Linux', category: 'cybersecurity_analyst', type: 'Free Course', provider: 'TryHackMe', link: '#', icon: 'fa-shield-halved' },
+            { title: 'PyTorch Deep Learning Essentials', category: 'ai_ml_engineer', type: 'Documentation', provider: 'PyTorch Official', link: '#', icon: 'fa-brain' },
+            { title: 'Product Management 101 & PRDs', category: 'product_manager', type: 'Article', provider: 'Product School', link: '#', icon: 'fa-newspaper' },
+            { title: 'Meta Ads & Google Analytics Certification', category: 'digital_marketer', type: 'Free Course', provider: 'Google Skillshop', link: '#', icon: 'fa-certificate' }
+        ];
+
+        function App() {
+            const [theme, setTheme] = useState('dark');
+            const [activePage, setActivePage] = useState('home');
+            const [selectedCareerId, setSelectedCareerId] = useState('software_developer');
+            const [compareList, setCompareList] = useState(['software_developer', 'data_analyst', 'ui_ux_designer']);
+            const [searchOpen, setSearchOpen] = useState(false);
+            const [searchQuery, setSearchQuery] = useState('');
+
+            const [quizAnswers, setQuizAnswers] = useState({
+                degree: '',
+                interest: '',
+                problemSolving: '',
+                codingComfort: '',
+                values: [],
+                environment: ''
+            });
+
+            // Saved Careers in LocalStorage
+            const [savedCareers, setSavedCareers] = useState(() => {
+                try {
+                    const local = localStorage.getItem('cp_saved_careers');
+                    return local ? JSON.parse(local) : ['software_developer'];
+                } catch {
+                    return ['software_developer'];
+                }
+            });
+
+            // Roadmap Completion Progress in LocalStorage
+            const [roadmapProgress, setRoadmapProgress] = useState(() => {
+                try {
+                    const local = localStorage.getItem('cp_roadmap_progress');
+                    return local ? JSON.parse(local) : { software_developer: [1, 2] };
+                } catch {
+                    return { software_developer: [1, 2] };
+                }
+            });
+
+            // Try Activity Ratings in LocalStorage
+            const [activityRatings, setActivityRatings] = useState(() => {
+                try {
+                    const local = localStorage.getItem('cp_activity_ratings');
+                    return local ? JSON.parse(local) : {};
+                } catch {
+                    return {};
+                }
+            });
+
+            // Save state effects
+            useEffect(() => {
+                localStorage.setItem('cp_saved_careers', JSON.stringify(savedCareers));
+            }, [savedCareers]);
+
+            useEffect(() => {
+                localStorage.setItem('cp_roadmap_progress', JSON.stringify(roadmapProgress));
+            }, [roadmapProgress]);
+
+            useEffect(() => {
+                localStorage.setItem('cp_activity_ratings', JSON.stringify(activityRatings));
+            }, [activityRatings]);
+
+            // Theme toggler effect
+            useEffect(() => {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.classList.remove('light');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    document.documentElement.classList.add('light');
+                }
+            }, [theme]);
+
+            // Keyboard shortcut for Cmd+K search
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                        e.preventDefault();
+                        setSearchOpen(prev => !prev);
+                    }
+                };
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, []);
+
+            const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+
+            const calculatedMatches = useMemo(() => {
+                return CAREER_DATABASE.map(career => {
+                    let score = 40;
+
+                    if (quizAnswers.degree && career.degreesMatched.includes(quizAnswers.degree)) score += 15;
+                    if (quizAnswers.interest && career.suitableInterests.includes(quizAnswers.interest)) score += 20;
+                    if (quizAnswers.problemSolving && career.suitableProblems.includes(quizAnswers.problemSolving)) score += 10;
+                    if (quizAnswers.codingComfort && career.suitableCoding.includes(quizAnswers.codingComfort)) score += 10;
+                    
+                    if (quizAnswers.values && quizAnswers.values.length > 0) {
+                        const matches = quizAnswers.values.filter(v => career.suitableValues.includes(v));
+                        score += Math.min(10, matches.length * 3);
+                    }
+                    if (quizAnswers.environment && career.suitableEnvs.includes(quizAnswers.environment)) score += 5;
+
+                    const matchPercent = Math.min(96, Math.max(52, score));
+                    return { ...career, matchPercent };
+                }).sort((a, b) => b.matchPercent - a.matchPercent);
+            }, [quizAnswers]);
+
+            const navigateToDetail = (id) => {
+                setSelectedCareerId(id);
+                setActivePage('detail');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const toggleBookmarkCareer = (id) => {
+                setSavedCareers(prev => 
+                    prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+                );
+            };
+
+            const toggleCompareItem = (id) => {
+                setCompareList(prev => {
+                    if (prev.includes(id)) {
+                        if (prev.length <= 1) return prev;
+                        return prev.filter(item => item !== id);
+                    } else {
+                        if (prev.length >= 4) return prev;
+                        return [...prev, id];
+                    }
+                });
+            };
+
+            const toggleRoadmapStage = (careerId, stageNum) => {
+                setRoadmapProgress(prev => {
+                    const currentList = prev[careerId] || [];
+                    const updated = currentList.includes(stageNum)
+                        ? currentList.filter(s => s !== stageNum)
+                        : [...currentList, stageNum];
+                    return { ...prev, [careerId]: updated };
+                });
+            };
+
+            const getCareerById = (id) => CAREER_DATABASE.find(c => c.id === id) || CAREER_DATABASE[0];
+
+            const searchResults = useMemo(() => {
+                if (!searchQuery.trim()) return [];
+                const q = searchQuery.toLowerCase();
+                return CAREER_DATABASE.filter(c => 
+                    c.title.toLowerCase().includes(q) || 
+                    c.category.toLowerCase().includes(q) ||
+                    c.keySkills.some(s => s.toLowerCase().includes(q))
+                );
+            }, [searchQuery]);
+
+            return (
+                <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 dark:bg-slate-950 dark:text-slate-100 light:bg-slate-50 light:text-slate-900 transition-colors duration-300">
+                    {}
+                    <header className="sticky top-0 z-40 bg-slate-900/90 dark:bg-slate-900/90 light:bg-white/90 backdrop-blur-md border-b border-slate-800 dark:border-slate-800 light:border-slate-200 transition-colors">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+                            {/* Logo */}
+                            <button 
+                                onClick={() => { setActivePage('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                className="flex items-center gap-2.5 group text-left"
+                            >
+                                <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-lg font-black shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
+                                    <i className="fa-solid fa-compass"></i>
+                                </div>
+                                <div>
+                                    <span className="font-extrabold text-lg tracking-tight text-white dark:text-white light:text-slate-900">
+                                        Career<span className="text-indigo-500">Path</span>
+                                    </span>
+                                    <span className="block text-[10px] font-semibold text-indigo-400 uppercase tracking-wider">College to Career Discovery</span>
+                                </div>
+                            </button>
+
+                            {/* Desktop Nav */}
+                            <nav className="hidden lg:flex items-center gap-1 text-sm font-semibold">
+                                {[
+                                    { id: 'home', label: 'Home', icon: 'fa-house' },
+                                    { id: 'quiz', label: 'Discover Career', icon: 'fa-wand-magic-sparkles', badge: 'Quiz' },
+                                    { id: 'explore', label: 'Explore Careers', icon: 'fa-layer-group' },
+                                    { id: 'compare', label: 'Compare', icon: 'fa-code-compare' },
+                                    { id: 'try', label: 'Try Activities', icon: 'fa-vial-sparkles' },
+                                    { id: 'roadmap', label: 'Roadmaps', icon: 'fa-map-location-dot' },
+                                    { id: 'internships', label: 'Internships', icon: 'fa-briefcase' },
+                                    { id: 'resources', label: 'Resources', icon: 'fa-book' },
+                                    { id: 'dashboard', label: 'Dashboard', icon: 'fa-chart-user' }
+                                ].map(item => (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => { setActivePage(item.id); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                        className={`px-3 py-2 rounded-xl transition-all flex items-center gap-2 ${
+                                            activePage === item.id 
+                                                ? 'bg-indigo-600/20 text-indigo-400 dark:text-indigo-400 light:bg-indigo-50 light:text-indigo-600 border border-indigo-500/30 font-bold' 
+                                                : 'text-slate-400 hover:text-slate-200 dark:hover:text-slate-200 light:text-slate-600 light:hover:text-slate-900'
+                                        }`}
+                                    >
+                                        <i className={`fa-solid ${item.icon} text-xs`}></i>
+                                        <span>{item.label}</span>
+                                        {item.badge && (
+                                            <span className="text-[9px] bg-indigo-500 text-white px-1.5 py-0.2 rounded-full uppercase font-extrabold">
+                                                {item.badge}
+                                            </span>
+                                        )}
+                                    </button>
+                                ))}
+                            </nav>
+
+                            {/* Right Controls */}
+                            <div className="flex items-center gap-2.5">
+                                <button
+                                    onClick={() => setSearchOpen(true)}
+                                    className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800 dark:bg-slate-800 light:bg-slate-100 border border-slate-700 dark:border-slate-700 light:border-slate-300 text-slate-400 text-xs font-medium hover:border-indigo-500 transition-colors"
+                                >
+                                    <i className="fa-solid fa-magnifying-glass"></i>
+                                    <span>Search careers...</span>
+                                    <kbd className="px-1.5 py-0.5 rounded bg-slate-900 dark:bg-slate-900 light:bg-slate-200 text-[10px] font-mono text-slate-300 dark:text-slate-300 light:text-slate-700">⌘K</kbd>
+                                </button>
+
+                                <button
+                                    onClick={toggleTheme}
+                                    className="p-2 rounded-xl bg-slate-800 dark:bg-slate-800 light:bg-slate-100 text-amber-400 hover:scale-105 transition-all border border-slate-700 dark:border-slate-700 light:border-slate-300"
+                                    title="Toggle Light/Dark Mode"
+                                >
+                                    <i className={`fa-solid ${theme === 'dark' ? 'fa-sun text-amber-400' : 'fa-moon text-indigo-600'}`}></i>
+                                </button>
+
+                                <button 
+                                    onClick={() => { setActivePage('quiz'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                    className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-lg shadow-indigo-600/25 transition-all flex items-center gap-1.5"
+                                >
+                                    <span>Find My Career</span>
+                                    <i className="fa-solid fa-arrow-right text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Mobile horizontal navigation bar */}
+                        <div className="lg:hidden flex items-center gap-2 px-4 py-2 border-t border-slate-800 dark:border-slate-800 light:border-slate-200 overflow-x-auto text-xs font-semibold custom-scrollbar">
+                            {[
+                                { id: 'home', label: 'Home' },
+                                { id: 'quiz', label: 'Quiz' },
+                                { id: 'explore', label: 'Explore' },
+                                { id: 'compare', label: 'Compare' },
+                                { id: 'try', label: 'Try Activities' },
+                                { id: 'roadmap', label: 'Roadmaps' },
+                                { id: 'internships', label: 'Internships' },
+                                { id: 'resources', label: 'Resources' },
+                                { id: 'dashboard', label: 'Dashboard' }
+                            ].map(m => (
+                                <button
+                                    key={m.id}
+                                    onClick={() => { setActivePage(m.id); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                    className={`px-3 py-1.5 rounded-full whitespace-nowrap transition-all ${
+                                        activePage === m.id
+                                            ? 'bg-indigo-600 text-white font-bold'
+                                            : 'bg-slate-800/80 dark:bg-slate-800/80 light:bg-slate-200 text-slate-300 dark:text-slate-300 light:text-slate-700'
+                                    }`}
+                                >
+                                    {m.label}
+                                </button>
+                            ))}
+                        </div>
+                    </header>
+
+                    {}
+                    {searchOpen && (
+                        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-start justify-center pt-20 px-4">
+                            <div className="w-full max-w-xl bg-slate-900 dark:bg-slate-900 light:bg-white rounded-2xl border border-slate-800 dark:border-slate-800 light:border-slate-200 shadow-2xl overflow-hidden">
+                                <div className="p-4 border-b border-slate-800 dark:border-slate-800 light:border-slate-200 flex items-center gap-3">
+                                    <i className="fa-solid fa-magnifying-glass text-indigo-400"></i>
+                                    <input 
+                                        type="text"
+                                        placeholder="Search careers, skills, or categories..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        autoFocus
+                                        className="w-full bg-transparent border-none outline-none text-slate-100 dark:text-slate-100 light:text-slate-900 placeholder-slate-500 text-sm"
+                                    />
+                                    <button onClick={() => setSearchOpen(false)} className="text-slate-400 hover:text-slate-200">
+                                        <i className="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                                <div className="max-h-80 overflow-y-auto p-3 space-y-1.5 custom-scrollbar">
+                                    {searchResults.length > 0 ? (
+                                        searchResults.map(c => (
+                                            <button
+                                                key={c.id}
+                                                onClick={() => {
+                                                    navigateToDetail(c.id);
+                                                    setSearchOpen(false);
+                                                    setSearchQuery('');
+                                                }}
+                                                className="w-full text-left p-3 rounded-xl hover:bg-slate-800 dark:hover:bg-slate-800 light:hover:bg-slate-100 transition-colors flex items-center justify-between"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
+                                                        <i className={`fa-solid ${c.icon}`}></i>
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="font-bold text-sm text-slate-100 dark:text-slate-100 light:text-slate-900">{c.title}</h4>
+                                                        <p className="text-xs text-slate-400">{c.category} • {c.difficulty}</p>
+                                                    </div>
+                                                </div>
+                                                <i className="fa-solid fa-chevron-right text-xs text-slate-500"></i>
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <p className="text-xs text-center text-slate-500 py-6">
+                                            {searchQuery ? 'No matching careers found' : 'Type a skill, career, or interest...'}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {}
+                    <main className="flex-1">
+                        {activePage === 'home' && (
+                            <HomePage 
+                                setActivePage={setActivePage}
+                                navigateToDetail={navigateToDetail}
+                            />
+                        )}
+                        {activePage === 'quiz' && (
+                            <QuizPage 
+                                quizAnswers={quizAnswers}
+                                setQuizAnswers={setQuizAnswers}
+                                setActivePage={setActivePage}
+                            />
+                        )}
+                        {activePage === 'results' && (
+                            <ResultsPage 
+                                calculatedMatches={calculatedMatches}
+                                navigateToDetail={navigateToDetail}
+                                compareList={compareList}
+                                toggleCompareItem={toggleCompareItem}
+                                setActivePage={setActivePage}
+                            />
+                        )}
+                        {activePage === 'explore' && (
+                            <ExplorePage 
+                                careers={CAREER_DATABASE}
+                                navigateToDetail={navigateToDetail}
+                                compareList={compareList}
+                                toggleCompareItem={toggleCompareItem}
+                                savedCareers={savedCareers}
+                                toggleBookmarkCareer={toggleBookmarkCareer}
+                            />
+                        )}
+                        {activePage === 'detail' && (
+                            <CareerDetailPage 
+                                career={getCareerById(selectedCareerId)}
+                                setActivePage={setActivePage}
+                                toggleCompareItem={toggleCompareItem}
+                                isCompared={compareList.includes(selectedCareerId)}
+                                savedCareers={savedCareers}
+                                toggleBookmarkCareer={toggleBookmarkCareer}
+                            />
+                        )}
+                        {activePage === 'compare' && (
+                            <ComparePage 
+                                careers={CAREER_DATABASE}
+                                compareList={compareList}
+                                toggleCompareItem={toggleCompareItem}
+                                navigateToDetail={navigateToDetail}
+                            />
+                        )}
+                        {activePage === 'try' && (
+                            <TryActivitiesPage 
+                                careers={CAREER_DATABASE}
+                                activityRatings={activityRatings}
+                                setActivityRatings={setActivityRatings}
+                                navigateToDetail={navigateToDetail}
+                            />
+                        )}
+                        {activePage === 'roadmap' && (
+                            <RoadmapPage 
+                                careers={CAREER_DATABASE}
+                                roadmapProgress={roadmapProgress}
+                                toggleRoadmapStage={toggleRoadmapStage}
+                                selectedCareerId={selectedCareerId}
+                                setSelectedCareerId={setSelectedCareerId}
+                            />
+                        )}
+                        {activePage === 'internships' && (
+                            <InternshipsPage 
+                                internships={INTERNSHIP_DATABASE}
+                                careers={CAREER_DATABASE}
+                                navigateToDetail={navigateToDetail}
+                            />
+                        )}
+                        {activePage === 'resources' && (
+                            <ResourcesPage 
+                                resources={RESOURCE_DATABASE}
+                                careers={CAREER_DATABASE}
+                            />
+                        )}
+                        {activePage === 'dashboard' && (
+                            <DashboardPage 
+                                careers={CAREER_DATABASE}
+                                savedCareers={savedCareers}
+                                roadmapProgress={roadmapProgress}
+                                activityRatings={activityRatings}
+                                navigateToDetail={navigateToDetail}
+                                setActivePage={setActivePage}
+                            />
+                        )}
+                    </main>
+
+                    {}
+                    <footer className="border-t border-slate-800 dark:border-slate-800 light:border-slate-200 bg-slate-900/50 dark:bg-slate-900/50 light:bg-slate-100 py-10 mt-16 transition-colors">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-sm">
+                                    <i className="fa-solid fa-compass"></i>
+                                </div>
+                                <span className="font-extrabold text-base tracking-tight text-white dark:text-white light:text-slate-900">
+                                    Career<span className="text-indigo-500">Path</span>
+                                </span>
+                                <span className="text-xs text-slate-400 dark:text-slate-400 light:text-slate-600">
+                                    • Empowering BCA, B.Tech, BBA, B.Com & Fresh Graduates
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-6 text-xs text-slate-400 dark:text-slate-400 light:text-slate-600 font-medium">
+                                <button onClick={() => setActivePage('home')} className="hover:text-indigo-400">Home</button>
+                                <button onClick={() => setActivePage('quiz')} className="hover:text-indigo-400">Career Explorer</button>
+                                <button onClick={() => setActivePage('try')} className="hover:text-indigo-400">Mini Activities</button>
+                                <button onClick={() => setActivePage('roadmap')} className="hover:text-indigo-400">Roadmaps</button>
+                                <button onClick={() => setActivePage('dashboard')} className="hover:text-indigo-400">Dashboard</button>
+                            </div>
+                            <p className="text-xs text-slate-500 dark:text-slate-500 light:text-slate-500">
+                                © 2026 CareerPath Platform. Interactive EdTech Exploration Tool.
+                            </p>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        function HomePage({ setActivePage, navigateToDetail }) {
+            return (
+                <div className="space-y-20 pb-16">
+                    {/* HERO SECTION */}
+                    <section className="relative pt-12 pb-16 overflow-hidden">
+                        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-8">
+                            
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold tracking-wide uppercase">
+                                <i className="fa-solid fa-sparkles text-amber-400"></i>
+                                <span>No More Career Confusion For Graduates</span>
+                            </div>
+
+                            <h1 className="text-4xl sm:text-6xl font-black tracking-tight max-w-4xl mx-auto leading-tight text-white dark:text-white light:text-slate-900">
+                                Don't choose a career blindly.<br />
+                                <span className="gradient-text">Discover a career path that fits YOU.</span>
+                            </h1>
+
+                            <p className="text-slate-400 dark:text-slate-400 light:text-slate-600 text-base sm:text-lg max-w-2xl mx-auto font-medium">
+                                Answer a few simple questions about your degree, strengths, interests, and preferences to discover personalized, high-growth career options.
+                            </p>
+
+                            <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+                                <button 
+                                    onClick={() => { setActivePage('quiz'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                    className="px-8 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-base shadow-xl shadow-indigo-600/30 transition-all hover:scale-105 flex items-center gap-2"
+                                >
+                                    <span>Find My Career</span>
+                                    <i className="fa-solid fa-arrow-right"></i>
+                                </button>
+                                <button 
+                                    onClick={() => { setActivePage('explore'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                    className="px-8 py-4 rounded-2xl bg-slate-800 dark:bg-slate-800 light:bg-slate-200 hover:bg-slate-700 text-slate-100 dark:text-slate-100 light:text-slate-900 font-extrabold text-base border border-slate-700 dark:border-slate-700 light:border-slate-300 transition-all"
+                                >
+                                    Explore Careers
+                                </button>
+                            </div>
+
+                            {/* Journey Flow Banner */}
+                            <div className="pt-8">
+                                <div className="inline-flex flex-wrap items-center justify-center gap-3 sm:gap-6 px-6 py-3 rounded-2xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 text-xs sm:text-sm font-semibold text-slate-300 dark:text-slate-300 light:text-slate-700 shadow-xl">
+                                    <span className="flex items-center gap-1.5 text-indigo-400"><i className="fa-solid fa-circle-check"></i> Answer</span>
+                                    <i className="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
+                                    <span className="flex items-center gap-1.5 text-purple-400"><i className="fa-solid fa-compass"></i> Discover</span>
+                                    <i className="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
+                                    <span className="flex items-center gap-1.5 text-pink-400"><i className="fa-solid fa-code-compare"></i> Compare</span>
+                                    <i className="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
+                                    <span className="flex items-center gap-1.5 text-emerald-400"><i className="fa-solid fa-vial"></i> Try</span>
+                                    <i className="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
+                                    <span className="flex items-center gap-1.5 text-amber-400"><i className="fa-solid fa-map"></i> Build Roadmap</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </section>
+
+                    {/* 5-MINUTE CAREER EXPLORER CALLOUT */}
+                    <section className="max-w-5xl mx-auto px-4">
+                        <div className="rounded-3xl bg-gradient-to-r from-indigo-900/60 via-purple-900/50 to-slate-900 p-8 sm:p-12 border border-indigo-500/30 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
+                            <div className="space-y-4 text-center md:text-left">
+                                <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold uppercase tracking-wider">
+                                    Not sure what to choose?
+                                </span>
+                                <h2 className="text-2xl sm:text-3xl font-extrabold text-white">Take our 5-minute Career Explorer</h2>
+                                <p className="text-slate-300 text-sm max-w-lg">
+                                    Tailored specifically for BCA, B.Tech, BBA, B.Com and BA students. Get instant percentage match scores for 8+ tech and business roles.
+                                </p>
+                            </div>
+                            <button 
+                                onClick={() => { setActivePage('quiz'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                className="px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm uppercase tracking-wide shadow-xl shadow-amber-500/20 whitespace-nowrap hover:scale-105 transition-all"
+                            >
+                                Start Career Explorer →
+                            </button>
+                        </div>
+                    </section>
+
+                    {/* FEATURE HIGHLIGHT CARDS */}
+                    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+                        <div className="text-center space-y-3">
+                            <h2 className="text-2xl sm:text-3xl font-black text-white dark:text-white light:text-slate-900">How CareerPath Guides You</h2>
+                            <p className="text-slate-400 text-sm">Everything you need to move from college classroom to real-world job placement.</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {[
+                                {
+                                    icon: 'fa-wand-magic-sparkles',
+                                    color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20',
+                                    title: '1. Intelligent Matching',
+                                    desc: 'Our algorithm analyzes your degree, coding comfort, solving style, and career values to recommend roles where you will thrive.'
+                                },
+                                {
+                                    icon: 'fa-vial',
+                                    color: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
+                                    title: '2. Try Before You Choose',
+                                    desc: 'Simulate mini real-world tasks (coding, UI layout, dataset analysis, QA bug hunting) before committing months to learning.'
+                                },
+                                {
+                                    icon: 'fa-map-location-dot',
+                                    color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+                                    title: '3. Step-by-Step Roadmaps',
+                                    desc: 'Follow clear 10-stage actionable roadmaps from basics to fullstack projects, internships, and interview readiness.'
+                                }
+                            ].map((item, idx) => (
+                                <div key={idx} className="p-6 rounded-2xl bg-slate-900/60 dark:bg-slate-900/60 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 shadow-xl space-y-4">
+                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl border ${item.color}`}>
+                                        <i className={`fa-solid ${item.icon}`}></i>
+                                    </div>
+                                    <h3 className="text-lg font-bold text-white dark:text-white light:text-slate-900">{item.title}</h3>
+                                    <p className="text-slate-400 dark:text-slate-400 light:text-slate-600 text-sm leading-relaxed">{item.desc}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+
+                    {/* FEATURED CAREER ROLES PREVIEW */}
+                    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div>
+                                <h2 className="text-2xl font-black text-white dark:text-white light:text-slate-900">Explore Popular Career Paths</h2>
+                                <p className="text-slate-400 text-sm">Discover high-demand roles for college freshers in 2026.</p>
+                            </div>
+                            <button 
+                                onClick={() => { setActivePage('explore'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                className="text-indigo-400 hover:text-indigo-300 font-bold text-sm flex items-center gap-1.5"
+                            >
+                                View all 8 careers <i className="fa-solid fa-arrow-right text-xs"></i>
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {CAREER_DATABASE.slice(0, 4).map(career => (
+                                <div 
+                                    key={career.id}
+                                    onClick={() => navigateToDetail(career.id)}
+                                    className="p-6 rounded-2xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 shadow-xl hover:border-indigo-500/50 transition-all cursor-pointer group space-y-4"
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${career.color} flex items-center justify-center text-white font-bold text-lg shadow-md`}>
+                                            <i className={`fa-solid ${career.icon}`}></i>
+                                        </div>
+                                        <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full border ${career.badgeBg}`}>
+                                            {career.category}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-base text-white dark:text-white light:text-slate-900 group-hover:text-indigo-400 transition-colors">{career.title}</h3>
+                                        <p className="text-slate-400 text-xs line-clamp-2 mt-1">{career.shortDesc}</p>
+                                    </div>
+                                    <div className="pt-2 border-t border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 flex items-center justify-between text-xs text-slate-400">
+                                        <span>Growth: <strong className="text-emerald-400">{career.careerGrowth.split(' ')[0]}</strong></span>
+                                        <span className="text-indigo-400 font-bold group-hover:translate-x-1 transition-transform">Details →</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                </div>
+            );
+        }
+
+        function QuizPage({ quizAnswers, setQuizAnswers, setActivePage }) {
+            const [currentStep, setCurrentStep] = useState(1);
+
+            const updateAnswer = (key, value) => {
+                setQuizAnswers(prev => ({ ...prev, [key]: value }));
+            };
+
+            const toggleValueSelection = (val) => {
+                setQuizAnswers(prev => {
+                    const current = prev.values || [];
+                    const exists = current.includes(val);
+                    const updated = exists ? current.filter(v => v !== val) : [...current, val];
+                    return { ...prev, values: updated };
+                });
+            };
+
+            const handleNext = () => {
+                if (currentStep < 6) {
+                    setCurrentStep(prev => prev + 1);
+                } else {
+                    setActivePage('results');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            };
+
+            const handleBack = () => {
+                if (currentStep > 1) setCurrentStep(prev => prev - 1);
+            };
+
+            return (
+                <div className="max-w-3xl mx-auto px-4 py-12 space-y-8">
+                    {/* Header & Step Indicator */}
+                    <div className="space-y-4 text-center">
+                        <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs font-bold uppercase tracking-wider">
+                            Interactive Career Explorer
+                        </span>
+                        <h1 className="text-3xl font-black text-white dark:text-white light:text-slate-900">Career Match Questionnaire</h1>
+                        
+                        {/* Progress Bar */}
+                        <div className="space-y-2 max-w-md mx-auto pt-2">
+                            <div className="flex items-center justify-between text-xs font-bold text-slate-400">
+                                <span>Step {currentStep} of 6</span>
+                                <span>{Math.round((currentStep / 6) * 100)}% Completed</span>
+                            </div>
+                            <div className="w-full h-2.5 rounded-full bg-slate-800 dark:bg-slate-800 light:bg-slate-200 overflow-hidden">
+                                <div 
+                                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300"
+                                    style={{ width: `${(currentStep / 6) * 100}%` }}
+                                ></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Step Card Container */}
+                    <div className="p-8 rounded-3xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 shadow-2xl space-y-8">
+                        
+                        {/* STEP 1: DEGREE */}
+                        {currentStep === 1 && (
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <h2 className="text-xl font-extrabold text-white dark:text-white light:text-slate-900">1. What are you currently studying?</h2>
+                                    <p className="text-xs text-slate-400">Select your current graduation degree program.</p>
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    {['BCA', 'B.Tech', 'BBA', 'B.Com', 'BA', 'Other'].map(degree => (
+                                        <button
+                                            key={degree}
+                                            onClick={() => updateAnswer('degree', degree)}
+                                            className={`p-4 rounded-2xl border font-bold text-sm transition-all text-center ${
+                                                quizAnswers.degree === degree
+                                                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/30'
+                                                    : 'bg-slate-800/50 dark:bg-slate-800/50 light:bg-slate-100 text-slate-300 dark:text-slate-300 light:text-slate-800 border-slate-700/80 hover:border-slate-500'
+                                            }`}
+                                        >
+                                            {degree}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* STEP 2: WORK INTEREST */}
+                        {currentStep === 2 && (
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <h2 className="text-xl font-extrabold text-white dark:text-white light:text-slate-900">2. What type of work interests you most?</h2>
+                                    <p className="text-xs text-slate-400">Choose the domain that aligns best with your curiosity.</p>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {[
+                                        { label: 'Coding & Building', icon: 'fa-laptop-code' },
+                                        { label: 'Data & Analysis', icon: 'fa-chart-pie' },
+                                        { label: 'Designing & Creativity', icon: 'fa-pen-ruler' },
+                                        { label: 'Business & Management', icon: 'fa-briefcase' },
+                                        { label: 'Cybersecurity', icon: 'fa-shield-halved' },
+                                        { label: 'Artificial Intelligence', icon: 'fa-brain' },
+                                        { label: 'Communication & People', icon: 'fa-bullhorn' }
+                                    ].map(item => (
+                                        <button
+                                            key={item.label}
+                                            onClick={() => updateAnswer('interest', item.label)}
+                                            className={`p-4 rounded-2xl border font-bold text-sm transition-all flex items-center gap-3 text-left ${
+                                                quizAnswers.interest === item.label
+                                                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/30'
+                                                    : 'bg-slate-800/50 dark:bg-slate-800/50 light:bg-slate-100 text-slate-300 dark:text-slate-300 light:text-slate-800 border-slate-700/80 hover:border-slate-500'
+                                            }`}
+                                        >
+                                            <i className={`fa-solid ${item.icon} text-base`}></i>
+                                            <span>{item.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* STEP 3: ENJOY SOLVING */}
+                        {currentStep === 3 && (
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <h2 className="text-xl font-extrabold text-white dark:text-white light:text-slate-900">3. What do you enjoy solving?</h2>
+                                    <p className="text-xs text-slate-400">Pick the problem style you find naturally rewarding.</p>
+                                </div>
+                                <div className="space-y-3">
+                                    {[
+                                        'Technical problems',
+                                        'Business problems',
+                                        'Logical problems',
+                                        'Creative problems',
+                                        'People-related problems'
+                                    ].map(prob => (
+                                        <button
+                                            key={prob}
+                                            onClick={() => updateAnswer('problemSolving', prob)}
+                                            className={`w-full p-4 rounded-2xl border font-bold text-sm transition-all text-left flex items-center justify-between ${
+                                                quizAnswers.problemSolving === prob
+                                                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/30'
+                                                    : 'bg-slate-800/50 dark:bg-slate-800/50 light:bg-slate-100 text-slate-300 dark:text-slate-300 light:text-slate-800 border-slate-700/80 hover:border-slate-500'
+                                            }`}
+                                        >
+                                            <span>{prob}</span>
+                                            {quizAnswers.problemSolving === prob && <i className="fa-solid fa-circle-check"></i>}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* STEP 4: CODING COMFORT */}
+                        {currentStep === 4 && (
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <h2 className="text-xl font-extrabold text-white dark:text-white light:text-slate-900">4. How comfortable are you with coding?</h2>
+                                    <p className="text-xs text-slate-400">Be honest! We have great non-coding and light-coding options too.</p>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {[
+                                        { label: 'Beginner', desc: 'No prior coding experience or basic HTML.' },
+                                        { label: 'Some experience', desc: 'Know basic loops, variables in C/Python.' },
+                                        { label: 'Comfortable', desc: 'Can write logic, functions, and mini projects.' },
+                                        { label: 'Advanced', desc: 'Comfortable with DSA, frameworks, & APIs.' }
+                                    ].map(item => (
+                                        <button
+                                            key={item.label}
+                                            onClick={() => updateAnswer('codingComfort', item.label)}
+                                            className={`p-4 rounded-2xl border transition-all text-left space-y-1 ${
+                                                quizAnswers.codingComfort === item.label
+                                                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/30'
+                                                    : 'bg-slate-800/50 dark:bg-slate-800/50 light:bg-slate-100 text-slate-300 dark:text-slate-300 light:text-slate-800 border-slate-700/80 hover:border-slate-500'
+                                            }`}
+                                        >
+                                            <div className="font-bold text-sm">{item.label}</div>
+                                            <div className="text-xs opacity-80">{item.desc}</div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* STEP 5: WHAT MATTERS MOST */}
+                        {currentStep === 5 && (
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <h2 className="text-xl font-extrabold text-white dark:text-white light:text-slate-900">5. What matters most in your career?</h2>
+                                    <p className="text-xs text-slate-400">Select multiple items that reflect your personal values.</p>
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    {[
+                                        'Salary',
+                                        'Career growth',
+                                        'Remote work',
+                                        'Job stability',
+                                        'Creativity',
+                                        'International opportunities',
+                                        'Work-life balance'
+                                    ].map(val => {
+                                        const isSelected = (quizAnswers.values || []).includes(val);
+                                        return (
+                                            <button
+                                                key={val}
+                                                onClick={() => toggleValueSelection(val)}
+                                                className={`p-3.5 rounded-2xl border font-bold text-xs transition-all text-center flex items-center justify-center gap-2 ${
+                                                    isSelected
+                                                        ? 'bg-indigo-600 text-white border-indigo-500 shadow-md'
+                                                        : 'bg-slate-800/50 dark:bg-slate-800/50 light:bg-slate-100 text-slate-300 dark:text-slate-300 light:text-slate-800 border-slate-700/80 hover:border-slate-500'
+                                                }`}
+                                            >
+                                                {isSelected && <i className="fa-solid fa-check text-xs"></i>}
+                                                <span>{val}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* STEP 6: WORK ENVIRONMENT */}
+                        {currentStep === 6 && (
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <h2 className="text-xl font-extrabold text-white dark:text-white light:text-slate-900">6. What kind of work environment do you prefer?</h2>
+                                    <p className="text-xs text-slate-400">Pick your ideal daily operational pace and structure.</p>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {[
+                                        { label: 'Independent', desc: 'Focusing on individual tasks with quiet autonomy.' },
+                                        { label: 'Team-based', desc: 'Collaborating closely with engineers & designers daily.' },
+                                        { label: 'Fast-paced', desc: 'High energy startup environment with fast feature releases.' },
+                                        { label: 'Structured', desc: 'Well-established corporate processes with predictable timelines.' },
+                                        { label: 'Flexible', desc: 'Hybrid or remote flexibility with focus on output results.' }
+                                    ].map(env => (
+                                        <button
+                                            key={env.label}
+                                            onClick={() => updateAnswer('environment', env.label)}
+                                            className={`p-4 rounded-2xl border transition-all text-left space-y-1 ${
+                                                quizAnswers.environment === env.label
+                                                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/30'
+                                                    : 'bg-slate-800/50 dark:bg-slate-800/50 light:bg-slate-100 text-slate-300 dark:text-slate-300 light:text-slate-800 border-slate-700/80 hover:border-slate-500'
+                                            }`}
+                                        >
+                                            <div className="font-bold text-sm">{env.label}</div>
+                                            <div className="text-xs opacity-80">{env.desc}</div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Controls */}
+                        <div className="pt-6 border-t border-slate-800 dark:border-slate-800 light:border-slate-200 flex items-center justify-between gap-4">
+                            <button
+                                onClick={handleBack}
+                                disabled={currentStep === 1}
+                                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                                    currentStep === 1 
+                                        ? 'opacity-40 cursor-not-allowed text-slate-500' 
+                                        : 'bg-slate-800 text-slate-200 hover:bg-slate-700'
+                                }`}
+                            >
+                                ← Back
+                            </button>
+
+                            <button
+                                onClick={handleNext}
+                                className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold shadow-lg shadow-indigo-600/25 transition-all flex items-center gap-1.5"
+                            >
+                                <span>{currentStep === 6 ? 'See My Matches' : 'Next Step'}</span>
+                                <i className="fa-solid fa-arrow-right text-[10px]"></i>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            );
+        }
+
+        function ResultsPage({ calculatedMatches, navigateToDetail, compareList, toggleCompareItem, setActivePage }) {
+            const top5 = calculatedMatches.slice(0, 5);
+
+            return (
+                <div className="max-w-6xl mx-auto px-4 py-12 space-y-10">
+                    <div className="text-center space-y-3">
+                        <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold uppercase tracking-wider">
+                            Personalized Discovery Results
+                        </span>
+                        <h1 className="text-3xl sm:text-4xl font-black text-white dark:text-white light:text-slate-900">Your Top Career Matches</h1>
+                        <p className="text-slate-400 text-sm max-w-xl mx-auto">
+                            Based on your degree, problem-solving style, coding comfort, and workplace priorities.
+                        </p>
+
+                        <div className="inline-block p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-medium max-w-xl text-left mt-2">
+                            <i className="fa-solid fa-circle-info mr-2"></i>
+                            <strong>Important Note:</strong> These recommendations are personalized discovery suggestions based on your responses, not guaranteed career predictions.
+                        </div>
+                    </div>
+
+                    {/* TOP MATCHES LIST */}
+                    <div className="space-y-6">
+                        {top5.map((career, index) => {
+                            const medal = index === 0 ? '🥇 Top Match' : index === 1 ? '🥈 Strong Choice' : index === 2 ? '🥉 Great Potential' : null;
+
+                            return (
+                                <div 
+                                    key={career.id}
+                                    className="p-6 sm:p-8 rounded-3xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 shadow-2xl space-y-6"
+                                >
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/80 dark:border-slate-800/80 light:border-slate-200">
+                                        <div className="flex items-start gap-4">
+                                            <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${career.color} flex items-center justify-center text-white text-2xl font-black shadow-lg`}>
+                                                <i className={`fa-solid ${career.icon}`}></i>
+                                            </div>
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <h2 className="text-xl font-extrabold text-white dark:text-white light:text-slate-900">{career.title}</h2>
+                                                    {medal && (
+                                                        <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                                            {medal}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p className="text-slate-400 text-xs mt-1 max-w-xl">{career.shortDesc}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Match Badge Bar */}
+                                        <div className="sm:text-right space-y-1 min-w-[140px]">
+                                            <div className="text-3xl font-black gradient-text">{career.matchPercent}% Match</div>
+                                            <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                                <div className="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full" style={{ width: `${career.matchPercent}%` }}></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* WHY THIS CAREER MATCHES & WHAT TO IMPROVE */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-950/50 dark:bg-slate-950/50 light:bg-slate-50 p-5 rounded-2xl border border-slate-800/50 dark:border-slate-800/50 light:border-slate-200">
+                                        {/* Positive reasons */}
+                                        <div className="space-y-3">
+                                            <h3 className="text-xs font-black uppercase text-emerald-400 tracking-wider flex items-center gap-2">
+                                                <i className="fa-solid fa-circle-check"></i>
+                                                Why Software/Role Matches You
+                                            </h3>
+                                            <ul className="space-y-2 text-xs text-slate-300 dark:text-slate-300 light:text-slate-700">
+                                                {career.whyMatch.map((reason, rIdx) => (
+                                                    <li key={rIdx} className="flex items-start gap-2">
+                                                        <span className="text-emerald-400 mt-0.5">✓</span>
+                                                        <span>{reason}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+
+                                        {/* Growth Gaps */}
+                                        <div className="space-y-3">
+                                            <h3 className="text-xs font-black uppercase text-amber-400 tracking-wider flex items-center gap-2">
+                                                <i className="fa-solid fa-triangle-exclamation"></i>
+                                                What You Should Improve
+                                            </h3>
+                                            <ul className="space-y-2 text-xs text-slate-300 dark:text-slate-300 light:text-slate-700">
+                                                {career.growthGaps.map((gap, gIdx) => (
+                                                    <li key={gIdx} className="flex items-start gap-2">
+                                                        <span className="text-amber-400 mt-0.5">⚠️</span>
+                                                        <span>{gap}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    {/* Key Attributes & Action Buttons */}
+                                    <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
+                                        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
+                                            <span>Difficulty: <strong className="text-slate-200 dark:text-slate-200 light:text-slate-800">{career.difficulty}</strong></span>
+                                            <span>•</span>
+                                            <span>Coding: <strong className="text-slate-200 dark:text-slate-200 light:text-slate-800">{career.codingReq}</strong></span>
+                                            <span>•</span>
+                                            <span>Remote: <strong className="text-slate-200 dark:text-slate-200 light:text-slate-800">{career.remoteOpp}</strong></span>
+                                        </div>
+
+                                        <div className="flex items-center gap-3">
+                                            <button 
+                                                onClick={() => toggleCompareItem(career.id)}
+                                                className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
+                                                    compareList.includes(career.id)
+                                                        ? 'bg-purple-600/20 text-purple-300 border-purple-500/40'
+                                                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border-slate-700'
+                                                }`}
+                                            >
+                                                <i className="fa-solid fa-code-compare mr-1.5"></i>
+                                                {compareList.includes(career.id) ? 'In Compare List' : 'Compare Role'}
+                                            </button>
+
+                                            <button 
+                                                onClick={() => navigateToDetail(career.id)}
+                                                className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold shadow-lg shadow-indigo-600/20 transition-all"
+                                            >
+                                                Explore Career →
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    <div className="text-center pt-6">
+                        <button 
+                            onClick={() => { setActivePage('compare'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                            className="px-8 py-3.5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-sm shadow-xl shadow-purple-600/25 transition-all"
+                        >
+                            Compare These Top Careers Side-by-Side →
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        function ComparePage({ careers, compareList, toggleCompareItem, navigateToDetail }) {
+            const comparedCareers = careers.filter(c => compareList.includes(c.id));
+
+            return (
+                <div className="max-w-7xl mx-auto px-4 py-12 space-y-10">
+                    <div className="space-y-3 text-center">
+                        <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 text-xs font-bold uppercase tracking-wider">
+                            Side-by-Side Career Analysis
+                        </span>
+                        <h1 className="text-3xl font-black text-white dark:text-white light:text-slate-900">Compare Selected Careers</h1>
+                        <p className="text-slate-400 text-sm max-w-lg mx-auto">
+                            Compare up to 4 roles to find the right balance of coding, math, growth, and remote flexibility.
+                        </p>
+
+                        {/* Career Selector Chips */}
+                        <div className="pt-4 flex flex-wrap items-center justify-center gap-2">
+                            {careers.map(c => {
+                                const selected = compareList.includes(c.id);
+                                return (
+                                    <button
+                                        key={c.id}
+                                        onClick={() => toggleCompareItem(c.id)}
+                                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                                            selected
+                                                ? 'bg-purple-600 text-white border-purple-500 shadow-md'
+                                                : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-600'
+                                        }`}
+                                    >
+                                        {selected ? '✓ ' : '+ '} {c.title}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* COMPARISON TABLE */}
+                    <div className="overflow-x-auto custom-scrollbar">
+                        <table className="w-full text-left border-collapse min-w-[700px]">
+                            <thead>
+                                <tr>
+                                    <th className="p-4 bg-slate-900/90 dark:bg-slate-900/90 light:bg-slate-100 border-b border-slate-800 text-xs font-black uppercase text-slate-400 w-48">
+                                        Metric Category
+                                    </th>
+                                    {comparedCareers.map(c => (
+                                        <th key={c.id} className="p-4 bg-slate-900/90 dark:bg-slate-900/90 light:bg-slate-100 border-b border-slate-800 w-64">
+                                            <div className="flex items-center justify-between">
+                                                <span className="font-extrabold text-sm text-white dark:text-white light:text-slate-900">{c.title}</span>
+                                                <button onClick={() => toggleCompareItem(c.id)} className="text-slate-500 hover:text-rose-400 text-xs">
+                                                    <i className="fa-solid fa-xmark"></i>
+                                                </button>
+                                            </div>
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-800/60 dark:divide-slate-800/60 light:divide-slate-200 text-xs">
+                                <tr>
+                                    <td className="p-4 font-bold text-slate-400">Coding Requirement</td>
+                                    {comparedCareers.map(c => (
+                                        <td key={c.id} className="p-4 text-slate-200 dark:text-slate-200 light:text-slate-800 font-semibold">{c.codingReq}</td>
+                                    ))}
+                                </tr>
+                                <tr>
+                                    <td className="p-4 font-bold text-slate-400">Mathematics Need</td>
+                                    {comparedCareers.map(c => (
+                                        <td key={c.id} className="p-4 text-slate-200 dark:text-slate-200 light:text-slate-800 font-semibold">{c.mathReq}</td>
+                                    ))}
+                                </tr>
+                                <tr>
+                                    <td className="p-4 font-bold text-slate-400">Creativity & Empathy</td>
+                                    {comparedCareers.map(c => (
+                                        <td key={c.id} className="p-4 text-slate-200 dark:text-slate-200 light:text-slate-800 font-semibold">{c.creativity}</td>
+                                    ))}
+                                </tr>
+                                <tr>
+                                    <td className="p-4 font-bold text-slate-400">Difficulty Level</td>
+                                    {comparedCareers.map(c => (
+                                        <td key={c.id} className="p-4">
+                                            <span className="px-2.5 py-1 rounded-full bg-slate-800 text-indigo-400 font-bold border border-slate-700">
+                                                {c.difficulty}
+                                            </span>
+                                        </td>
+                                    ))}
+                                </tr>
+                                <tr>
+                                    <td className="p-4 font-bold text-slate-400">Learning Curve</td>
+                                    {comparedCareers.map(c => (
+                                        <td key={c.id} className="p-4 text-slate-200 dark:text-slate-200 light:text-slate-800">{c.learningCurve}</td>
+                                    ))}
+                                </tr>
+                                <tr>
+                                    <td className="p-4 font-bold text-slate-400">Entry Friendliness</td>
+                                    {comparedCareers.map(c => (
+                                        <td key={c.id} className="p-4 text-slate-200 dark:text-slate-200 light:text-slate-800">{c.entryFriendliness}</td>
+                                    ))}
+                                </tr>
+                                <tr>
+                                    <td className="p-4 font-bold text-slate-400">Remote Flexibility</td>
+                                    {comparedCareers.map(c => (
+                                        <td key={c.id} className="p-4 text-emerald-400 font-extrabold">{c.remoteOpp}</td>
+                                    ))}
+                                </tr>
+                                <tr>
+                                    <td className="p-4 font-bold text-slate-400">Avg Graduate Salary</td>
+                                    {comparedCareers.map(c => (
+                                        <td key={c.id} className="p-4 text-amber-400 font-black">{c.avgSalary}</td>
+                                    ))}
+                                </tr>
+                                <tr>
+                                    <td className="p-4 font-bold text-slate-400">Key Skills</td>
+                                    {comparedCareers.map(c => (
+                                        <td key={c.id} className="p-4 space-y-1">
+                                            {c.keySkills.map((sk, sIdx) => (
+                                                <span key={sIdx} className="block text-[11px] text-slate-300 dark:text-slate-300 light:text-slate-700">
+                                                    • {sk}
+                                                </span>
+                                            ))}
+                                        </td>
+                                    ))}
+                                </tr>
+                                <tr>
+                                    <td className="p-4 font-bold text-slate-400">Action</td>
+                                    {comparedCareers.map(c => (
+                                        <td key={c.id} className="p-4">
+                                            <button 
+                                                onClick={() => navigateToDetail(c.id)}
+                                                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs"
+                                            >
+                                                View Roadmap
+                                            </button>
+                                        </td>
+                                    ))}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+        }
+
+        function TryActivitiesPage({ careers, activityRatings, setActivityRatings, navigateToDetail }) {
+            const [activeTab, setActiveTab] = useState('software_developer');
+
+            const rateActivity = (careerId, rating) => {
+                setActivityRatings(prev => ({ ...prev, [careerId]: rating }));
+            };
+
+            return (
+                <div className="max-w-5xl mx-auto px-4 py-12 space-y-10">
+                    <div className="text-center space-y-3">
+                        <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs font-bold uppercase tracking-wider">
+                            Interactive Skill Simulation
+                        </span>
+                        <h1 className="text-3xl font-black text-white dark:text-white light:text-slate-900">Try Before You Choose</h1>
+                        <p className="text-slate-400 text-sm max-w-lg mx-auto">
+                            Not sure whether a career is right for you? Try a 2-minute mini interactive task.
+                        </p>
+                    </div>
+
+                    {/* Activity Role Tabs */}
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                        {[
+                            { id: 'software_developer', label: 'Software Developer', icon: 'fa-laptop-code' },
+                            { id: 'data_analyst', label: 'Data Analyst', icon: 'fa-chart-pie' },
+                            { id: 'ui_ux_designer', label: 'UI/UX Designer', icon: 'fa-pen-ruler' },
+                            { id: 'qa_sdet', label: 'QA Engineer', icon: 'fa-bug' },
+                            { id: 'cybersecurity_analyst', label: 'Cybersecurity', icon: 'fa-shield-halved' }
+                        ].map(tab => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 border ${
+                                    activeTab === tab.id
+                                        ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/25'
+                                        : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'
+                                }`}
+                            >
+                                <i className={`fa-solid ${tab.icon}`}></i>
+                                <span>{tab.label}</span>
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* MINI ACTIVITY CARDS */}
+                    <div className="p-8 rounded-3xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 shadow-2xl space-y-8">
+                        
+                        {/* SOFTWARE DEVELOPER MINI TASK */}
+                        {activeTab === 'software_developer' && (
+                            <SoftwareDevActivity rateActivity={rateActivity} rating={activityRatings.software_developer} />
+                        )}
+
+                        {/* DATA ANALYST MINI TASK */}
+                        {activeTab === 'data_analyst' && (
+                            <DataAnalystActivity rateActivity={rateActivity} rating={activityRatings.data_analyst} />
+                        )}
+
+                        {/* UI/UX DESIGNER MINI TASK */}
+                        {activeTab === 'ui_ux_designer' && (
+                            <UiUxActivity rateActivity={rateActivity} rating={activityRatings.ui_ux_designer} />
+                        )}
+
+                        {/* QA ENGINEER MINI TASK */}
+                        {activeTab === 'qa_sdet' && (
+                            <QaEngineerActivity rateActivity={rateActivity} rating={activityRatings.qa_sdet} />
+                        )}
+
+                        {/* CYBERSECURITY MINI TASK */}
+                        {activeTab === 'cybersecurity_analyst' && (
+                            <CyberSecurityActivity rateActivity={rateActivity} rating={activityRatings.cybersecurity_analyst} />
+                        )}
+
+                        {/* Reassurance Disclaimer */}
+                        <div className="p-4 rounded-2xl bg-slate-950/60 dark:bg-slate-950/60 light:bg-slate-100 border border-slate-800/80 text-center space-y-1">
+                            <p className="text-xs text-slate-400 font-medium">
+                                💡 <strong>Exploration Tool Disclaimer:</strong> This mini activity is designed as a lightweight sample. Your performance on this exercise does not determine your long-term capability or success in this career!
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            );
+        }
+
+        function SoftwareDevActivity({ rateActivity, rating }) {
+            const [selectedFix, setSelectedFix] = useState(null);
+            const [status, setStatus] = useState('');
+
+            const checkFix = (choice) => {
+                setSelectedFix(choice);
+                if (choice === 'correct') {
+                    setStatus('✅ Great job! You fixed the array index out-of-bounds bug.');
+                } else {
+                    setStatus('❌ Not quite. Check the loop condition bounds.');
+                }
+            };
+
+            return (
+                <div className="space-y-6">
+                    <div>
+                        <span className="text-xs font-black uppercase text-indigo-400">Mini Task: Software Developer</span>
+                        <h2 className="text-xl font-extrabold text-white dark:text-white light:text-slate-900 mt-1">Fix a Simple Coding Bug</h2>
+                        <p className="text-xs text-slate-400">A junior developer wrote a loop to print numbers, but it throws an error. Find the fix!</p>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-slate-950 font-mono text-xs text-emerald-400 border border-slate-800 space-y-1">
+                        <div className="text-slate-500">// Buggy JavaScript Code</div>
+                        <div>let numbers = [10, 20, 30];</div>
+                        <div className="text-rose-400">for (let i = 0; i &lt;= numbers.length; i++) &#123;</div>
+                        <div className="pl-4">console.log(numbers[i]); // Throws undefined at index 3</div>
+                        <div>&#125;</div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <p className="text-xs font-bold text-slate-300">Which line fixes the loop bounds error?</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <button 
+                                onClick={() => checkFix('correct')}
+                                className={`p-3 rounded-xl border text-xs font-mono font-bold text-left transition-all ${
+                                    selectedFix === 'correct' ? 'bg-emerald-600/20 text-emerald-300 border-emerald-500' : 'bg-slate-800 text-slate-300 border-slate-700'
+                                }`}
+                            >
+                                for (let i = 0; i &lt; numbers.length; i++)
+                            </button>
+                            <button 
+                                onClick={() => checkFix('wrong')}
+                                className={`p-3 rounded-xl border text-xs font-mono font-bold text-left transition-all ${
+                                    selectedFix === 'wrong' ? 'bg-rose-600/20 text-rose-300 border-rose-500' : 'bg-slate-800 text-slate-300 border-slate-700'
+                                }`}
+                            >
+                                for (let i = 1; i &lt;= numbers.length; i++)
+                            </button>
+                        </div>
+                    </div>
+
+                    {status && <div className="p-3 rounded-xl bg-slate-800 text-xs font-bold text-indigo-300">{status}</div>}
+
+                    <ActivityFeedbackSection careerId="software_developer" rateActivity={rateActivity} rating={rating} />
+                </div>
+            );
+        }
+
+        function DataAnalystActivity({ rateActivity, rating }) {
+            const [answer, setAnswer] = useState(null);
+
+            return (
+                <div className="space-y-6">
+                    <div>
+                        <span className="text-xs font-black uppercase text-emerald-400">Mini Task: Data Analyst</span>
+                        <h2 className="text-xl font-extrabold text-white dark:text-white light:text-slate-900 mt-1">Find Insights from Dataset</h2>
+                        <p className="text-xs text-slate-400">Analyze this monthly e-commerce sales table and spot the highest revenue product category.</p>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr className="bg-slate-950 text-slate-400 border-b border-slate-800">
+                                    <th className="p-3">Category</th>
+                                    <th className="p-3">Units Sold</th>
+                                    <th className="p-3">Avg Unit Price</th>
+                                    <th className="p-3">Total Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-800 text-slate-300">
+                                <tr>
+                                    <td className="p-3 font-bold">Electronics</td>
+                                    <td className="p-3">500</td>
+                                    <td className="p-3">$100</td>
+                                    <td className="p-3 font-bold text-emerald-400">$50,000</td>
+                                </tr>
+                                <tr>
+                                    <td className="p-3 font-bold">Apparel</td>
+                                    <td className="p-3">1,200</td>
+                                    <td className="p-3">$25</td>
+                                    <td className="p-3 font-bold text-emerald-400">$30,000</td>
+                                </tr>
+                                <tr>
+                                    <td className="p-3 font-bold">Home Goods</td>
+                                    <td className="p-3">300</td>
+                                    <td className="p-3">$80</td>
+                                    <td className="p-3 font-bold text-emerald-400">$24,000</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div className="space-y-2">
+                        <p className="text-xs font-bold text-slate-300">Which category produced the maximum total revenue?</p>
+                        <div className="flex gap-3">
+                            {['Electronics', 'Apparel', 'Home Goods'].map(cat => (
+                                <button
+                                    key={cat}
+                                    onClick={() => setAnswer(cat)}
+                                    className={`px-4 py-2 rounded-xl border text-xs font-bold ${
+                                        answer === cat ? 'bg-emerald-600 text-white border-emerald-500' : 'bg-slate-800 text-slate-300 border-slate-700'
+                                    }`}
+                                >
+                                    {cat}
+                                </button>
+                            ))}
+                        </div>
+                        {answer === 'Electronics' && <p className="text-xs text-emerald-400 font-bold mt-2">✅ Correct! Electronics generated $50,000 in revenue.</p>}
+                    </div>
+
+                    <ActivityFeedbackSection careerId="data_analyst" rateActivity={rateActivity} rating={rating} />
+                </div>
+            );
+        }
+
+        function UiUxActivity({ rateActivity, rating }) {
+            const [selectedOption, setSelectedOption] = useState(null);
+
+            return (
+                <div className="space-y-6">
+                    <div>
+                        <span className="text-xs font-black uppercase text-purple-400">Mini Task: UI/UX Designer</span>
+                        <h2 className="text-xl font-extrabold text-white dark:text-white light:text-slate-900 mt-1">Improve App Screen Layout</h2>
+                        <p className="text-xs text-slate-400">Which button design creates higher visual hierarchy for a Primary Call-to-Action?</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div 
+                            onClick={() => setSelectedOption('A')}
+                            className={`p-6 rounded-2xl border text-center space-y-4 cursor-pointer transition-all ${
+                                selectedOption === 'A' ? 'border-purple-500 bg-purple-500/10' : 'border-slate-800 bg-slate-950'
+                            }`}
+                        >
+                            <span className="text-xs font-bold text-slate-400">Option A (Low contrast)</span>
+                            <button className="w-full py-2 rounded bg-slate-800 text-slate-400 text-xs font-normal">Sign Up Now</button>
+                        </div>
+
+                        <div 
+                            onClick={() => setSelectedOption('B')}
+                            className={`p-6 rounded-2xl border text-center space-y-4 cursor-pointer transition-all ${
+                                selectedOption === 'B' ? 'border-purple-500 bg-purple-500/10' : 'border-slate-800 bg-slate-950'
+                            }`}
+                        >
+                            <span className="text-xs font-bold text-slate-400">Option B (High contrast & rounded)</span>
+                            <button className="w-full py-3 rounded-xl bg-indigo-600 text-white text-xs font-extrabold shadow-lg shadow-indigo-600/30">Sign Up Now →</button>
+                        </div>
+                    </div>
+
+                    {selectedOption === 'B' && <p className="text-xs text-purple-400 font-bold">✅ Excellent UX intuition! Option B provides clear visual hierarchy and inviting touch target sizing.</p>}
+
+                    <ActivityFeedbackSection careerId="ui_ux_designer" rateActivity={rateActivity} rating={rating} />
+                </div>
+            );
+        }
+
+        function QaEngineerActivity({ rateActivity, rating }) {
+            const [bugsFound, setBugsFound] = useState([]);
+
+            const toggleBug = (bugId) => {
+                setBugsFound(prev => prev.includes(bugId) ? prev.filter(b => b !== bugId) : [...prev, bugId]);
+            };
+
+            return (
+                <div className="space-y-6">
+                    <div>
+                        <span className="text-xs font-black uppercase text-amber-400">Mini Task: QA Engineer</span>
+                        <h2 className="text-xl font-extrabold text-white dark:text-white light:text-slate-900 mt-1">Spot Website Bugs</h2>
+                        <p className="text-xs text-slate-400">Click on the broken elements in this sample user registration form.</p>
+                    </div>
+
+                    <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
+                        <div className="space-y-1">
+                            <label className="text-xs font-bold text-slate-300">Email Address</label>
+                            <input type="text" value="invalid-email-no-at-symbol" readOnly className="w-full p-2.5 rounded-xl bg-slate-900 text-slate-100 text-xs border border-slate-700" />
+                            <button onClick={() => toggleBug('email')} className="text-[10px] text-amber-400 font-bold underline">
+                                {bugsFound.includes('email') ? '✓ Bug Logged: Invalid Email Format' : '🐞 Flag Email Validation Bug'}
+                            </button>
+                        </div>
+
+                        <div className="space-y-1">
+                            <label className="text-xs font-bold text-slate-300">Submit Button</label>
+                            <button disabled className="w-full py-2.5 rounded-xl bg-slate-800 text-slate-500 text-xs font-bold cursor-not-allowed">Submit (Broken Click Listener)</button>
+                            <button onClick={() => toggleBug('button')} className="text-[10px] text-amber-400 font-bold underline">
+                                {bugsFound.includes('button') ? '✓ Bug Logged: Unresponsive Button' : '🐞 Flag Disabled Button Bug'}
+                            </button>
+                        </div>
+                    </div>
+
+                    <p className="text-xs text-amber-400 font-bold">Bugs Logged: {bugsFound.length} / 2</p>
+
+                    <ActivityFeedbackSection careerId="qa_sdet" rateActivity={rateActivity} rating={rating} />
+                </div>
+            );
+        }
+
+        function CyberSecurityActivity({ rateActivity, rating }) {
+            const [detected, setDetected] = useState(false);
+
+            return (
+                <div className="space-y-6">
+                    <div>
+                        <span className="text-xs font-black uppercase text-cyan-400">Mini Task: Cybersecurity</span>
+                        <h2 className="text-xl font-extrabold text-white dark:text-white light:text-slate-900 mt-1">Identify Suspicious Phishing Email</h2>
+                        <p className="text-xs text-slate-400">Inspect the email headers below to detect the phishing threat.</p>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs space-y-2 font-mono">
+                        <div><strong className="text-slate-400">From:</strong> support@paypa1-security-verify.com</div>
+                        <div><strong className="text-slate-400">Subject:</strong> URGENT: Your Account Has Been Suspended! Click immediately.</div>
+                        <div className="text-slate-300 pt-2 font-sans text-xs">"Dear Customer, click here to log into your account and restore your funds."</div>
+                    </div>
+
+                    <button 
+                        onClick={() => setDetected(true)}
+                        className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all ${
+                            detected ? 'bg-cyan-600 text-white border-cyan-500' : 'bg-slate-800 text-slate-300 border-slate-700'
+                        }`}
+                    >
+                        {detected ? '✅ Phishing Threat Flagged Successfully!' : '🚨 Flag as Suspicious Domain (Paypa1 instead of Paypal)'}
+                    </button>
+
+                    <ActivityFeedbackSection careerId="cybersecurity_analyst" rateActivity={rateActivity} rating={rating} />
+                </div>
+            );
+        }
+
+        function ActivityFeedbackSection({ careerId, rateActivity, rating }) {
+            return (
+                <div className="pt-6 border-t border-slate-800 space-y-3">
+                    <p className="text-xs font-bold text-slate-300">How did you feel about this activity?</p>
+                    <div className="flex flex-wrap gap-2">
+                        {[
+                            { label: 'Loved it', emoji: '❤️' },
+                            { label: 'Enjoyed it', emoji: '🙂' },
+                            { label: 'Neutral', emoji: '😐' },
+                            { label: "Didn't enjoy it", emoji: '😕' }
+                        ].map(f => (
+                            <button
+                                key={f.label}
+                                onClick={() => rateActivity(careerId, f.label)}
+                                className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${
+                                    rating === f.label
+                                        ? 'bg-indigo-600 text-white border-indigo-500 shadow-md'
+                                        : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:border-slate-500'
+                                }`}
+                            >
+                                <span className="mr-1.5">{f.emoji}</span>
+                                <span>{f.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        function CareerDetailPage({ career, setActivePage, toggleCompareItem, isCompared, savedCareers, toggleBookmarkCareer }) {
+            const isBookmarked = savedCareers.includes(career.id);
+
+            return (
+                <div className="max-w-6xl mx-auto px-4 py-12 space-y-12">
+                    {/* Header Banner */}
+                    <div className="p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950/50 to-slate-900 border border-slate-800 shadow-2xl space-y-6">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                            <div className="flex items-start gap-5">
+                                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${career.color} flex items-center justify-center text-white text-3xl font-black shadow-lg`}>
+                                    <i className={`fa-solid ${career.icon}`}></i>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <h1 className="text-3xl font-black text-white">{career.title}</h1>
+                                        <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full border ${career.badgeBg}`}>
+                                            {career.category}
+                                        </span>
+                                    </div>
+                                    <p className="text-slate-300 text-sm max-w-2xl">{career.longDesc}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <button 
+                                    onClick={() => toggleBookmarkCareer(career.id)}
+                                    className={`p-3 rounded-2xl border text-sm font-bold transition-all ${
+                                        isBookmarked ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-slate-800 text-slate-300 border-slate-700'
+                                    }`}
+                                    title="Save Career"
+                                >
+                                    <i className={`fa-solid fa-bookmark ${isBookmarked ? 'text-amber-400' : ''}`}></i>
+                                </button>
+                                <button 
+                                    onClick={() => toggleCompareItem(career.id)}
+                                    className={`px-4 py-3 rounded-2xl border text-xs font-bold transition-all ${
+                                        isCompared ? 'bg-purple-600/20 text-purple-300 border-purple-500/30' : 'bg-slate-800 text-slate-300 border-slate-700'
+                                    }`}
+                                >
+                                    <i className="fa-solid fa-code-compare mr-1.5"></i>
+                                    {isCompared ? 'In Compare' : 'Add to Compare'}
+                                </button>
+                                <button 
+                                    onClick={() => { setActivePage('roadmap'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                    className="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-lg shadow-indigo-600/30 transition-all"
+                                >
+                                    View 10-Stage Roadmap →
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Metric Highlights */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-800 text-xs">
+                            <div>
+                                <span className="text-slate-400 block">Avg Fresher Salary</span>
+                                <strong className="text-amber-400 font-extrabold text-sm">{career.avgSalary}</strong>
+                            </div>
+                            <div>
+                                <span className="text-slate-400 block">Coding Requirement</span>
+                                <strong className="text-white font-extrabold text-sm">{career.codingReq}</strong>
+                            </div>
+                            <div>
+                                <span className="text-slate-400 block">Remote Opportunities</span>
+                                <strong className="text-emerald-400 font-extrabold text-sm">{career.remoteOpp}</strong>
+                            </div>
+                            <div>
+                                <span className="text-slate-400 block">Career Growth Pace</span>
+                                <strong className="text-indigo-400 font-extrabold text-sm">{career.careerGrowth.split(' ')[0]}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* TWO COLUMN GRID */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        
+                        {/* LEFT 2 COLUMNS */}
+                        <div className="lg:col-span-2 space-y-8">
+                            
+                            {/* DAILY WORK ROUTINE */}
+                            <div className="p-6 rounded-3xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 shadow-xl space-y-4">
+                                <h3 className="text-lg font-black text-white dark:text-white light:text-slate-900 flex items-center gap-2">
+                                    <i className="fa-solid fa-calendar-day text-indigo-400"></i>
+                                    <span>Typical Daily Work Routine</span>
+                                </h3>
+                                <ul className="space-y-3 text-xs text-slate-300 dark:text-slate-300 light:text-slate-700">
+                                    {career.dailyWork.map((task, tIdx) => (
+                                        <li key={tIdx} className="flex items-start gap-3 p-3 rounded-xl bg-slate-950/50 dark:bg-slate-950/50 light:bg-slate-50 border border-slate-800/50 dark:border-slate-800/50 light:border-slate-200">
+                                            <span className="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">{tIdx + 1}</span>
+                                            <span className="leading-relaxed">{task}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            {/* SKILLS & TOOLS */}
+                            <div className="p-6 rounded-3xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 shadow-xl space-y-6">
+                                <h3 className="text-lg font-black text-white dark:text-white light:text-slate-900 flex items-center gap-2">
+                                    <i className="fa-solid fa-screws-wrench text-purple-400"></i>
+                                    <span>Required Skills & Primary Tools</span>
+                                </h3>
+
+                                <div className="space-y-3">
+                                    <span className="text-xs font-bold text-slate-400">Core Technical Skills:</span>
+                                    <div className="flex flex-wrap gap-2">
+                                        {career.keySkills.map((sk, skIdx) => (
+                                            <span key={skIdx} className="px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-bold">
+                                                {sk}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <span className="text-xs font-bold text-slate-400">Tools & Platforms Used:</span>
+                                    <div className="flex flex-wrap gap-2">
+                                        {career.tools.map((tl, tlIdx) => (
+                                            <span key={tlIdx} className="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold">
+                                                🛠️ {tl}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* REALITY CHECK METRICS */}
+                            <div className="p-6 rounded-3xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 shadow-xl space-y-4">
+                                <h3 className="text-lg font-black text-white dark:text-white light:text-slate-900 flex items-center gap-2">
+                                    <i className="fa-solid fa-scale-balanced text-amber-400"></i>
+                                    <span>Career Reality Metrics</span>
+                                </h3>
+                                <p className="text-xs text-slate-400">Honest expectation assessment without false industry hype.</p>
+
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
+                                    {Object.entries(career.realityMetrics).map(([key, val]) => (
+                                        <div key={key} className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-1">
+                                            <span className="text-[10px] uppercase font-bold text-slate-400">{key.replace(/([A-Z])/g, ' $1')}</span>
+                                            <div className="text-sm font-extrabold text-amber-300">{val}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                        </div>
+
+                        {/* RIGHT COLUMN */}
+                        <div className="space-y-8">
+                            
+                            {/* IS THIS CAREER FOR YOU CHECKLIST */}
+                            <div className="p-6 rounded-3xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 shadow-xl space-y-4">
+                                <h3 className="text-base font-black text-white dark:text-white light:text-slate-900">Is this career for you?</h3>
+                                <p className="text-xs text-slate-400">Check off items that describe your natural working preference:</p>
+
+                                <div className="space-y-3">
+                                    {[
+                                        'I enjoy solving technical or analytical problems.',
+                                        'I am willing to learn new software tools continuously.',
+                                        'I prefer structured career paths with measurable output.',
+                                        'I want a high-growth career with remote potential.'
+                                    ].map((chk, cIdx) => (
+                                        <label key={cIdx} className="flex items-start gap-3 text-xs text-slate-300 cursor-pointer">
+                                            <input type="checkbox" className="mt-0.5 rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-indigo-500" />
+                                            <span>{chk}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* NEXT ACTION CALLOUT */}
+                            <div className="p-6 rounded-3xl bg-indigo-600/10 border border-indigo-500/30 text-center space-y-4">
+                                <h4 className="font-extrabold text-base text-white">Ready to start learning?</h4>
+                                <p className="text-xs text-slate-300">Track your progress across 10 structured learning stages.</p>
+                                <button 
+                                    onClick={() => { setActivePage('roadmap'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                    className="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-lg shadow-indigo-600/30 transition-all"
+                                >
+                                    Open Interactive Roadmap →
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            );
+        }
+
+        function RoadmapPage({ careers, roadmapProgress, toggleRoadmapStage, selectedCareerId, setSelectedCareerId }) {
+            const career = careers.find(c => c.id === selectedCareerId) || careers[0];
+            const stages = ROADMAP_DATA[career.id] || ROADMAP_DATA['software_developer'];
+            const completedStages = roadmapProgress[career.id] || [];
+            const progressPercent = Math.round((completedStages.length / stages.length) * 100);
+
+            return (
+                <div className="max-w-5xl mx-auto px-4 py-12 space-y-10">
+                    <div className="text-center space-y-3">
+                        <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs font-bold uppercase tracking-wider">
+                            10-Stage Career Roadmap
+                        </span>
+                        <h1 className="text-3xl font-black text-white dark:text-white light:text-slate-900">Personalized Career Roadmap</h1>
+                        <p className="text-slate-400 text-sm max-w-lg mx-auto">
+                            Step-by-step guidance from baseline skills to internships, resume building, and job offer.
+                        </p>
+                    </div>
+
+                    {/* Role Selection Dropdown */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200">
+                        <div className="flex items-center gap-3">
+                            <span className="text-xs font-bold text-slate-400">Select Goal Role:</span>
+                            <select 
+                                value={selectedCareerId}
+                                onChange={(e) => setSelectedCareerId(e.target.value)}
+                                className="bg-slate-950 dark:bg-slate-950 light:bg-slate-100 text-slate-100 dark:text-slate-100 light:text-slate-900 font-bold text-xs p-2.5 rounded-xl border border-slate-700 outline-none"
+                            >
+                                {careers.map(c => (
+                                    <option key={c.id} value={c.id}>{c.title}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Progress Bar Header */}
+                        <div className="flex items-center gap-4 w-full sm:w-auto">
+                            <div className="text-xs font-bold text-slate-300">Progress: <span className="text-indigo-400">{progressPercent}%</span></div>
+                            <div className="w-32 h-2.5 rounded-full bg-slate-800 overflow-hidden">
+                                <div className="h-full bg-gradient-to-r from-indigo-500 to-emerald-400 transition-all duration-300" style={{ width: `${progressPercent}%` }}></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ROADMAP STAGES VERTICAL TIMELINE */}
+                    <div className="space-y-4">
+                        {stages.map((st) => {
+                            const isDone = completedStages.includes(st.stage);
+
+                            return (
+                                <div 
+                                    key={st.stage}
+                                    onClick={() => toggleRoadmapStage(career.id, st.stage)}
+                                    className={`p-6 rounded-3xl border transition-all cursor-pointer flex items-start gap-4 ${
+                                        isDone
+                                            ? 'bg-emerald-950/20 dark:bg-emerald-950/20 light:bg-emerald-50 border-emerald-500/40 shadow-lg'
+                                            : 'bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 hover:border-slate-700'
+                                    }`}
+                                >
+                                    <div className={`w-9 h-9 rounded-xl font-black text-xs flex items-center justify-center shrink-0 mt-0.5 ${
+                                        isDone ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/30' : 'bg-slate-800 text-slate-300'
+                                    }`}>
+                                        {isDone ? '✓' : st.stage}
+                                    </div>
+
+                                    <div className="flex-1 space-y-1">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className={`font-extrabold text-base ${isDone ? 'text-emerald-400 dark:text-emerald-400 light:text-emerald-700 line-through' : 'text-white dark:text-white light:text-slate-900'}`}>
+                                                Stage {st.stage}: {st.title}
+                                            </h3>
+                                            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                                                isDone ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-slate-800 text-slate-400 border-slate-700'
+                                            }`}>
+                                                {isDone ? 'Completed' : 'Pending'}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-slate-400 dark:text-slate-400 light:text-slate-600 leading-relaxed">{st.desc}</p>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        }
+
+        function ExplorePage({ careers, navigateToDetail, compareList, toggleCompareItem, savedCareers, toggleBookmarkCareer }) {
+            const [selectedCategory, setSelectedCategory] = useState('All');
+            const [searchFilter, setSearchFilter] = useState('');
+
+            const filteredCareers = careers.filter(c => {
+                const matchesCat = selectedCategory === 'All' || c.category === selectedCategory;
+                const matchesSearch = c.title.toLowerCase().includes(searchFilter.toLowerCase()) || c.shortDesc.toLowerCase().includes(searchFilter.toLowerCase());
+                return matchesCat && matchesSearch;
+            });
+
+            return (
+                <div className="max-w-7xl mx-auto px-4 py-12 space-y-10">
+                    <div className="text-center space-y-3">
+                        <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs font-bold uppercase tracking-wider">
+                            Comprehensive Career Library
+                        </span>
+                        <h1 className="text-3xl font-black text-white dark:text-white light:text-slate-900">Explore High-Demand Tech & Business Roles</h1>
+                        <p className="text-slate-400 text-sm max-w-lg mx-auto">
+                            Filter and research careers tailored for BCA, B.Tech, BBA, B.Com and BA freshers.
+                        </p>
+                    </div>
+
+                    {/* Filter Bar */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200">
+                        {/* Category Chips */}
+                        <div className="flex flex-wrap gap-2">
+                            {['All', 'Technology', 'Data & AI', 'Design', 'Business'].map(cat => (
+                                <button
+                                    key={cat}
+                                    onClick={() => setSelectedCategory(cat)}
+                                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                                        selectedCategory === cat ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                                    }`}
+                                >
+                                    {cat}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Search Input */}
+                        <div className="w-full sm:w-64 relative">
+                            <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-500"></i>
+                            <input 
+                                type="text"
+                                placeholder="Filter careers..."
+                                value={searchFilter}
+                                onChange={(e) => setSearchFilter(e.target.value)}
+                                className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-slate-950 dark:bg-slate-950 light:bg-slate-100 text-xs text-slate-100 dark:text-slate-100 light:text-slate-900 border border-slate-800 outline-none"
+                            />
+                        </div>
+                    </div>
+
+                    {/* CAREER CARDS GRID */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredCareers.map(career => {
+                            const isSaved = savedCareers.includes(career.id);
+                            const isCompared = compareList.includes(career.id);
+
+                            return (
+                                <div 
+                                    key={career.id}
+                                    className="p-6 rounded-3xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 shadow-xl flex flex-col justify-between space-y-6 hover:border-indigo-500/40 transition-all"
+                                >
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${career.color} flex items-center justify-center text-white text-xl font-bold shadow-md`}>
+                                                <i className={`fa-solid ${career.icon}`}></i>
+                                            </div>
+                                            <button 
+                                                onClick={() => toggleBookmarkCareer(career.id)}
+                                                className="text-slate-500 hover:text-amber-400 text-sm p-1"
+                                            >
+                                                <i className={`fa-solid fa-bookmark ${isSaved ? 'text-amber-400' : ''}`}></i>
+                                            </button>
+                                        </div>
+
+                                        <div>
+                                            <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${career.badgeBg}`}>
+                                                {career.category}
+                                            </span>
+                                            <h3 className="text-lg font-bold text-white dark:text-white light:text-slate-900 mt-2">{career.title}</h3>
+                                            <p className="text-xs text-slate-400 mt-1 line-clamp-2">{career.shortDesc}</p>
+                                        </div>
+
+                                        <div className="space-y-1.5 text-xs text-slate-400 pt-2 border-t border-slate-800/80">
+                                            <div>Salary: <strong className="text-amber-400">{career.avgSalary}</strong></div>
+                                            <div>Coding: <strong className="text-slate-200 dark:text-slate-200 light:text-slate-800">{career.codingReq}</strong></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 pt-2">
+                                        <button 
+                                            onClick={() => toggleCompareItem(career.id)}
+                                            className={`p-2.5 rounded-xl border text-xs font-bold transition-all ${
+                                                isCompared ? 'bg-purple-600/20 text-purple-300 border-purple-500/40' : 'bg-slate-800 text-slate-400 border-slate-700'
+                                            }`}
+                                            title="Compare"
+                                        >
+                                            <i className="fa-solid fa-code-compare"></i>
+                                        </button>
+                                        <button 
+                                            onClick={() => navigateToDetail(career.id)}
+                                            className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold shadow-md transition-all text-center"
+                                        >
+                                            View Career Details →
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        }
+
+        function InternshipsPage({ internships, careers, navigateToDetail }) {
+            const [selectedCategory, setSelectedCategory] = useState('All');
+
+            const filteredInternships = internships.filter(int => {
+                return selectedCategory === 'All' || int.roleCategory === selectedCategory;
+            });
+
+            return (
+                <div className="max-w-6xl mx-auto px-4 py-12 space-y-10">
+                    <div className="text-center space-y-3">
+                        <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold uppercase tracking-wider">
+                            Early Career Placements
+                        </span>
+                        <h1 className="text-3xl font-black text-white dark:text-white light:text-slate-900">Internship Opportunities for Graduates</h1>
+                        <p className="text-slate-400 text-sm max-w-lg mx-auto">
+                            Discover entry-level internship listings with clear stipend ranges and skill requirements.
+                        </p>
+                    </div>
+
+                    {/* Filter Tabs */}
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                        <button
+                            onClick={() => setSelectedCategory('All')}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                                selectedCategory === 'All' ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-800 text-slate-400'
+                            }`}
+                        >
+                            All Roles
+                        </button>
+                        {careers.map(c => (
+                            <button
+                                key={c.id}
+                                onClick={() => setSelectedCategory(c.id)}
+                                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                                    selectedCategory === c.id ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-800 text-slate-400'
+                                }`}
+                            >
+                                {c.title}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* LISTINGS */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {filteredInternships.map(item => (
+                            <div key={item.id} className="p-6 rounded-3xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 shadow-xl space-y-4">
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-10 h-10 rounded-xl ${item.color} flex items-center justify-center text-white text-base font-bold shadow-md`}>
+                                            <i className={`fa-solid ${item.logo}`}></i>
+                                        </div>
+                                        <div>
+                                            <h3 className="font-extrabold text-base text-white dark:text-white light:text-slate-900">{item.title}</h3>
+                                            <span className="text-xs font-semibold text-slate-400">{item.company}</span>
+                                        </div>
+                                    </div>
+                                    <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-black text-xs">
+                                        {item.stipend}
+                                    </span>
+                                </div>
+
+                                <p className="text-xs text-slate-300 dark:text-slate-300 light:text-slate-700 leading-relaxed">{item.desc}</p>
+
+                                <div className="flex flex-wrap gap-1.5">
+                                    {item.skills.map((sk, sIdx) => (
+                                        <span key={sIdx} className="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 text-[10px] font-bold">
+                                            {sk}
+                                        </span>
+                                    ))}
+                                </div>
+
+                                <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                                    <span>📍 {item.location} • {item.duration}</span>
+                                    <button 
+                                        onClick={() => navigateToDetail(item.roleCategory)}
+                                        className="text-indigo-400 font-bold hover:underline"
+                                    >
+                                        Role Requirements →
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        function ResourcesPage({ resources, careers }) {
+            const [selectedRole, setSelectedRole] = useState('All');
+
+            const filteredResources = resources.filter(r => selectedRole === 'All' || r.category === selectedRole);
+
+            return (
+                <div className="max-w-6xl mx-auto px-4 py-12 space-y-10">
+                    <div className="text-center space-y-3">
+                        <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 text-xs font-bold uppercase tracking-wider">
+                            Curated Learning Library
+                        </span>
+                        <h1 className="text-3xl font-black text-white dark:text-white light:text-slate-900">Learning Resources & Course Guides</h1>
+                        <p className="text-slate-400 text-sm max-w-lg mx-auto">
+                            Free courses, documentation, YouTube channels, and practice platforms organized by career.
+                        </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                        <button
+                            onClick={() => setSelectedRole('All')}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                                selectedRole === 'All' ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-800 text-slate-400'
+                            }`}
+                        >
+                            All Resources
+                        </button>
+                        {careers.map(c => (
+                            <button
+                                key={c.id}
+                                onClick={() => setSelectedRole(c.id)}
+                                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                                    selectedRole === c.id ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-800 text-slate-400'
+                                }`}
+                            >
+                                {c.title}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredResources.map((res, rIdx) => (
+                            <div key={rIdx} className="p-6 rounded-3xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 shadow-xl space-y-4 flex flex-col justify-between">
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-lg font-bold">
+                                            <i className={`fa-solid ${res.icon}`}></i>
+                                        </div>
+                                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                                            {res.type}
+                                        </span>
+                                    </div>
+                                    <h3 className="font-extrabold text-base text-white dark:text-white light:text-slate-900">{res.title}</h3>
+                                    <p className="text-xs text-slate-400">Provider: <strong className="text-slate-200">{res.provider}</strong></p>
+                                </div>
+
+                                <a 
+                                    href={res.link} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 font-extrabold text-xs text-center block transition-colors border border-slate-700"
+                                >
+                                    Access Resource <i className="fa-solid fa-arrow-up-right-from-square text-[10px] ml-1"></i>
+                                </a>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        function DashboardPage({ careers, savedCareers, roadmapProgress, activityRatings, navigateToDetail, setActivePage }) {
+            const savedCareerObjects = careers.filter(c => savedCareers.includes(c.id));
+            const totalActivitiesDone = Object.keys(activityRatings).length;
+
+            return (
+                <div className="max-w-6xl mx-auto px-4 py-12 space-y-10">
+                    <div className="p-8 rounded-3xl bg-gradient-to-r from-indigo-900/60 via-slate-900 to-purple-900/50 border border-indigo-500/30 shadow-2xl space-y-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div>
+                                <h1 className="text-3xl font-black text-white">Welcome back, Student 👋</h1>
+                                <p className="text-slate-300 text-sm mt-1">Track your active roadmaps, saved career roles, and activity feedback.</p>
+                            </div>
+                            <button 
+                                onClick={() => { setActivePage('quiz'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-lg shadow-indigo-600/30 transition-all"
+                            >
+                                Retake Career Quiz
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* METRIC OVERVIEW CARDS */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div className="p-6 rounded-3xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 shadow-xl space-y-2">
+                            <div className="text-xs font-bold text-slate-400 uppercase">Saved Careers</div>
+                            <div className="text-3xl font-black text-white dark:text-white light:text-slate-900">{savedCareers.length}</div>
+                            <p className="text-[11px] text-slate-500">Roles saved in your personal library</p>
+                        </div>
+
+                        <div className="p-6 rounded-3xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 shadow-xl space-y-2">
+                            <div className="text-xs font-bold text-slate-400 uppercase">Activities Completed</div>
+                            <div className="text-3xl font-black text-indigo-400">{totalActivitiesDone}</div>
+                            <p className="text-[11px] text-slate-500">Mini career tasks simulated</p>
+                        </div>
+
+                        <div className="p-6 rounded-3xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 shadow-xl space-y-2">
+                            <div className="text-xs font-bold text-slate-400 uppercase">Roadmaps In Progress</div>
+                            <div className="text-3xl font-black text-emerald-400">{Object.keys(roadmapProgress).length}</div>
+                            <p className="text-[11px] text-slate-500">Active learning roadmaps</p>
+                        </div>
+                    </div>
+
+                    {/* SAVED CAREERS & ACTIVE ROADMAPS */}
+                    <div className="space-y-6">
+                        <h2 className="text-xl font-black text-white dark:text-white light:text-slate-900">Your Saved Careers</h2>
+                        {savedCareerObjects.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {savedCareerObjects.map(career => {
+                                    const doneStages = (roadmapProgress[career.id] || []).length;
+                                    const totalStages = (ROADMAP_DATA[career.id] || []).length || 10;
+                                    const pct = Math.round((doneStages / totalStages) * 100);
+
+                                    return (
+                                        <div key={career.id} className="p-6 rounded-3xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-800 dark:border-slate-800 light:border-slate-200 shadow-xl space-y-4">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${career.color} flex items-center justify-center text-white text-lg font-bold shadow-md`}>
+                                                        <i className={`fa-solid ${career.icon}`}></i>
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="font-extrabold text-base text-white dark:text-white light:text-slate-900">{career.title}</h3>
+                                                        <span className="text-xs text-slate-400">{career.category}</span>
+                                                    </div>
+                                                </div>
+                                                <button 
+                                                    onClick={() => navigateToDetail(career.id)}
+                                                    className="px-3 py-1.5 rounded-xl bg-indigo-600/20 text-indigo-400 text-xs font-bold border border-indigo-500/30"
+                                                >
+                                                    View Details
+                                                </button>
+                                            </div>
+
+                                            {/* Roadmap progress bar */}
+                                            <div className="space-y-1.5 pt-2 border-t border-slate-800">
+                                                <div className="flex justify-between text-xs text-slate-400 font-bold">
+                                                    <span>Roadmap Completion</span>
+                                                    <span className="text-emerald-400">{pct}%</span>
+                                                </div>
+                                                <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                                                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${pct}%` }}></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <p className="text-xs text-slate-500">No saved careers yet. Explore the career library to save roles!</p>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        window.onload = function() {
+            const rootElement = document.getElementById('root');
+            if (rootElement) {
+                const root = ReactDOM.createRoot(rootElement);
+                root.render(<App />);
+            }
+        };
+    </script>
+</body>
+</html>
